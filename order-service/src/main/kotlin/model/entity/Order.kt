@@ -12,9 +12,11 @@ data class Order(
 
     @Id
     var id: UUID? = null,
-    var userId: String,
+    var userId: UUID,
+
+    @Enumerated(EnumType.STRING)
     var status: OrderStatus,
 
-    @OneToMany
+    @OneToMany(targetEntity = OrderItem::class)
     var items: List<OrderItem> = emptyList()
 )

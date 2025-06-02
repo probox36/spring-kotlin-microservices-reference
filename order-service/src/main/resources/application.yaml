@@ -1,0 +1,45 @@
+server:
+  port: 8081
+
+logging:
+  level:
+    org:
+      springframework: WARN
+
+spring:
+  application:
+    name: foodtech-order-service
+
+  web:
+    locale: en_EN
+    locale-resolver: fixed
+
+#  kafka:
+#    consumer:
+#      bootstrap-servers: localhost:9092
+#      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+#      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+#      group-id: sharding-notifications
+#      properties:
+#        spring:
+#          json:
+#            #            value:
+#            #              default:
+#            #                type: org.example.entity.Notification
+#            trusted:
+#              packages: org.example,org.acme,org.springframework
+#
+  datasource:
+    base-url:
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password:
+    url: jdbc:${spring.datasource.base-url}
+    show-sql: true
+#
+#  flyway:
+#    url: jdbc:${spring.datasource.base-url}
+#    locations: classpath:db.migration
+#    user: ${spring.datasource.username}
+#    password: ${spring.datasource.password}
+#    baselineOnMigrate: true

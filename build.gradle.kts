@@ -1,7 +1,8 @@
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
 
 plugins {
-    kotlin("jvm") version "1.9.25" apply false
+    kotlin("jvm") version "1.9.25"
+    kotlin("kapt") version "1.9.25"
     kotlin("plugin.spring") version "1.9.25" apply false
     id("org.springframework.boot") version "3.5.0" apply false
     id("io.spring.dependency-management") version "1.1.7" apply false
@@ -20,6 +21,7 @@ allprojects {
 subprojects {
 
     apply(plugin = "org.jetbrains.kotlin.jvm")
+    apply(plugin = "org.jetbrains.kotlin.kapt")
     apply(plugin = "org.jetbrains.kotlin.plugin.spring")
     apply(plugin = "org.springframework.boot")
     apply(plugin = "io.spring.dependency-management")
@@ -49,10 +51,11 @@ subprojects {
     dependencies {
         implementation(platform("org.springframework.cloud:spring-cloud-dependencies:${property("springCloudVersion")}"))
         implementation("org.jetbrains.kotlin:kotlin-reflect")
-        implementation("org.flywaydb:flyway-database-postgresql")
+        implementation("org.mapstruct:mapstruct:1.6.3")
         implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j")
         implementation("org.springframework.cloud:spring-cloud-starter-gateway-server-webmvc")
         implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
+        kapt("org.mapstruct:mapstruct-processor:1.6.3")
     }
 
     tasks.withType<Test> {

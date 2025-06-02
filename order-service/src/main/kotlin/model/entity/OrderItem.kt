@@ -10,10 +10,10 @@ import java.util.UUID
 @Entity
 @Table(name = "items")
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
-class OrderItem {
+data class OrderItem (
 
     @Id
-    var id: UUID? = null
-    var name: String? = null
-    var price: Long? = null
-}
+    var id: UUID? = null,
+    var name: String,
+    var price: Long
+)
