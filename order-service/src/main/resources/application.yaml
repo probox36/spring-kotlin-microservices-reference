@@ -30,16 +30,17 @@ spring:
 #              packages: org.example,org.acme,org.springframework
 #
   datasource:
-    base-url:
+    host: localhost:5432
+    database-name: foodtech
+    base-url: postgresql://${spring.datasource.host}/${spring.datasource.database-name}
     driver-class-name: org.postgresql.Driver
     username: postgres
     password:
     url: jdbc:${spring.datasource.base-url}
     show-sql: true
-#
-#  flyway:
-#    url: jdbc:${spring.datasource.base-url}
-#    locations: classpath:db.migration
-#    user: ${spring.datasource.username}
-#    password: ${spring.datasource.password}
-#    baselineOnMigrate: true
+
+  flyway:
+    url: jdbc:${spring.datasource.base-url}
+    locations: classpath:migration
+    user: ${spring.datasource.username}
+    password: ${spring.datasource.password}

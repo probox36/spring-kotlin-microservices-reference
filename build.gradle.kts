@@ -1,4 +1,4 @@
-import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
+// import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
 
 plugins {
     kotlin("jvm") version "1.9.25"
@@ -26,7 +26,7 @@ subprojects {
     apply(plugin = "org.springframework.boot")
     apply(plugin = "io.spring.dependency-management")
 
-    extra["springCloudVersion"] = "2025.0.0-RC1"
+//    extra["springCloudVersion"] = "2025.0.0-RC1"
 
     configure<JavaPluginExtension> {
         toolchain {
@@ -34,11 +34,11 @@ subprojects {
         }
     }
 
-    configure<DependencyManagementExtension> {
-        imports {
-            mavenBom("org.springframework.cloud:spring-cloud-dependencies:${property("springCloudVersion")}")
-        }
-    }
+//    configure<DependencyManagementExtension> {
+//        imports {
+//            mavenBom("org.springframework.cloud:spring-cloud-dependencies:${property("springCloudVersion")}")
+//        }
+//    }
 
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
         kotlinOptions {
@@ -49,12 +49,12 @@ subprojects {
     val implementation by configurations
 
     dependencies {
-        implementation(platform("org.springframework.cloud:spring-cloud-dependencies:${property("springCloudVersion")}"))
+//        implementation(platform("org.springframework.cloud:spring-cloud-dependencies:${property("springCloudVersion")}"))
         implementation("org.jetbrains.kotlin:kotlin-reflect")
         implementation("org.mapstruct:mapstruct:1.6.3")
-        implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j")
-        implementation("org.springframework.cloud:spring-cloud-starter-gateway-server-webmvc")
-        implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
+//        implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j")
+//        implementation("org.springframework.cloud:spring-cloud-starter-gateway-server-webmvc")
+//        implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
         kapt("org.mapstruct:mapstruct-processor:1.6.3")
     }
 

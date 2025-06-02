@@ -6,12 +6,11 @@ import org.mapstruct.Mapper
 import org.mapstruct.MappingConstants
 import org.mapstruct.InjectionStrategy
 
-//@Mapper(
-//    componentModel = MappingConstants.ComponentModel.SPRING,
-//    uses = [OrderItemMapper::class],
-//    injectionStrategy = InjectionStrategy.CONSTRUCTOR
-//)
-@Mapper
+@Mapper(
+    componentModel = MappingConstants.ComponentModel.SPRING,
+    uses = [ProductMapper::class],
+    injectionStrategy = InjectionStrategy.CONSTRUCTOR
+)
 interface OrderMapper {
     fun toEntity(dto: OrderDto): Order
     fun toDto(order: Order): OrderDto

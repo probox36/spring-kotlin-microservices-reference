@@ -7,5 +7,5 @@ data class OrderDto(
     var id: UUID? = null,
     var userId: UUID,
     var status: OrderStatus,
-    var items: List<OrderItemDto> = emptyList()
+    var items: List<ProductDto> = emptyList()
 )

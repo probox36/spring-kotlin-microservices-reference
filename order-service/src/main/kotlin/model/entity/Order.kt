@@ -11,12 +11,13 @@ import java.util.*
 data class Order(
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     var id: UUID? = null,
     var userId: UUID,
 
     @Enumerated(EnumType.STRING)
     var status: OrderStatus,
 
-    @OneToMany(targetEntity = OrderItem::class)
-    var items: List<OrderItem> = emptyList()
+    @OneToMany(targetEntity = Product::class)
+    var items: List<Product> = emptyList()
 )

@@ -1,62 +1,67 @@
 package model.mapper
 
+import com.buoyancy.OrderServiceApplication
 import com.buoyancy.model.dto.OrderDto
-import com.buoyancy.model.dto.OrderItemDto
+import com.buoyancy.model.dto.ProductDto
 import com.buoyancy.model.entity.Order
-import com.buoyancy.model.entity.OrderItem
 import com.buoyancy.model.entity.OrderStatus
-import com.buoyancy.model.mapper.OrderItemMapper
+import com.buoyancy.model.entity.Product
 import com.buoyancy.model.mapper.OrderMapper
+import com.buoyancy.model.mapper.ProductMapper
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import org.mapstruct.factory.Mappers
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
 import java.util.*
 
+@SpringBootTest(classes = [OrderServiceApplication::class])
 class MapperTest {
 
-    private val orderMapper: OrderMapper = Mappers.getMapper(OrderMapper::class.java)
-    private val orderItemMapper: OrderItemMapper = Mappers.getMapper(OrderItemMapper::class.java)
+    @Autowired
+    lateinit var orderMapper: OrderMapper
+    @Autowired
+    lateinit var productMapper: ProductMapper
 
     @Test
     fun `should map OrderItemDto to OrderItem`() {
         // Given
-        val orderItemDto = OrderItemDto(UUID.randomUUID(), "Pickles", 1099)
+        val productDto = ProductDto(UUID.randomUUID(), "Pickles", 1099)
 
         // When
-        val orderItem = orderItemMapper.toEntity(orderItemDto)
+        val product = productMapper.toEntity(productDto)
 
         // Then
-        assertEquals(orderItemDto.name, orderItem.name)
-        assertEquals(orderItemDto.price, orderItem.price)
-        assertEquals(orderItemDto.id, orderItem.id)
+        assertEquals(productDto.name, product.name)
+        assertEquals(productDto.price, product.price)
+        assertEquals(productDto.id, product.id)
     }
 
     @Test
     fun `should map OrderItem to OrderItemDto`() {
         // Given
-        val orderItem = OrderItem(UUID.randomUUID(), "Pickles", 1099)
+        val product = Product(UUID.randomUUID(), "Pickles", 1099)
 
         // When
-        val orderItemDto = orderItemMapper.toDto(orderItem)
+        val productDto = productMapper.toDto(product)
 
         // Then
-        assertEquals(orderItemDto.name, orderItem.name)
-        assertEquals(orderItemDto.price, orderItem.price)
-        assertEquals(orderItemDto.id, orderItem.id)
+        assertEquals(productDto.name, product.name)
+        assertEquals(productDto.price, product.price)
+        assertEquals(productDto.id, product.id)
     }
 
 
-    private val item1 = OrderItem(UUID.randomUUID(), "Pickles", 1099)
-    private val item2 = OrderItem(UUID.randomUUID(), "Cheese", 1590)
-    private val dto1 = OrderItemDto(UUID.randomUUID(), "Pickles", 1099)
-    private val dto2 = OrderItemDto(UUID.randomUUID(), "Cheese", 1590)
+    private val item1 = Product(UUID.randomUUID(), "Pickles", 1099)
+    private val item2 = Product(UUID.randomUUID(), "Cheese", 1590)
+    private val dto1 = ProductDto(UUID.randomUUID(), "Pickles", 1099)
+    private val dto2 = ProductDto(UUID.randomUUID(), "Cheese", 1590)
     private val orderItems = listOf(item1, item2)
     private val orderItemDtos = listOf(dto1, dto2)
     @Test
     fun `should map OrderDto to Order`() {
         // Given
-        val orderItemDtos = listOf(OrderItemDto(UUID.randomUUID(), "Pickles", 1099), OrderItemDto(UUID.randomUUID(), "Cheese", 1590))
-        val orderDto = OrderDto(UUID.randomUUID(), UUID.randomUUID(), OrderStatus.READY, orderItemDtos)
+        val productDtos = listOf(ProductDto(UUID.randomUUID(), "Pickles", 1099), ProductDto(UUID.randomUUID(), "Cheese", 1590))
+        val orderDto = OrderDto(UUID.randomUUID(), UUID.randomUUID(), OrderStatus.READY, productDtos)
 
         // When
         val order = orderMapper.toEntity(orderDto)
