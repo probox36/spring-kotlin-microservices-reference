@@ -1,5 +1,6 @@
-package com.buoyancy.model.entity
+package com.buoyancy.common.model.entity
 
+import com.buoyancy.common.model.enums.OrderStatus
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import jakarta.persistence.*

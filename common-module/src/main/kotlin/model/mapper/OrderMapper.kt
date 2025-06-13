@@ -1,10 +1,10 @@
-package com.buoyancy.model.mapper
+package com.buoyancy.common.model.mapper
 
-import com.buoyancy.model.dto.OrderDto
-import com.buoyancy.model.entity.Order
+import com.buoyancy.common.model.dto.OrderDto
+import com.buoyancy.common.model.entity.Order
+import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.mapstruct.MappingConstants
-import org.mapstruct.InjectionStrategy
 
 @Mapper(
     componentModel = MappingConstants.ComponentModel.SPRING,

@@ -1,13 +1,13 @@
 package model.mapper
 
-import com.buoyancy.common.model.dto.OrderDto
-import com.buoyancy.common.model.dto.ProductDto
-import com.buoyancy.common.model.entity.Order
-import com.buoyancy.common.model.entity.Product
-import com.buoyancy.common.model.enums.OrderStatus
-import com.buoyancy.common.model.mapper.OrderMapper
-import com.buoyancy.common.model.mapper.ProductMapper
-import com.buoyancy.order.OrderServiceApplication
+import com.buoyancy.OrderServiceApplication
+import com.buoyancy.model.dto.OrderDto
+import com.buoyancy.model.dto.ProductDto
+import com.buoyancy.model.entity.Order
+import com.buoyancy.model.entity.OrderStatus
+import com.buoyancy.model.entity.Product
+import com.buoyancy.model.mapper.OrderMapper
+import com.buoyancy.model.mapper.ProductMapper
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired

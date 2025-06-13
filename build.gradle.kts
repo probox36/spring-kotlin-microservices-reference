@@ -35,6 +35,7 @@ subprojects {
     }
 
 //    configure<DependencyManagementExtension> {
+
 //        imports {
 //            mavenBom("org.springframework.cloud:spring-cloud-dependencies:${property("springCloudVersion")}")
 //        }
@@ -46,12 +47,19 @@ subprojects {
         }
     }
 
+//    tasks.matching { it.name.contains("kapt", ignoreCase = true) }.configureEach {
+//        enabled = false
+//    }
+
     val implementation by configurations
 
     dependencies {
 //        implementation(platform("org.springframework.cloud:spring-cloud-dependencies:${property("springCloudVersion")}"))
         implementation("org.jetbrains.kotlin:kotlin-reflect")
         implementation("org.mapstruct:mapstruct:1.6.3")
+        implementation("org.springframework.boot:spring-boot-starter-validation")
+        implementation("io.github.oshai:kotlin-logging-jvm:7.0.7")
+        implementation("ch.qos.logback:logback-classic:1.5.18")
 //        implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j")
 //        implementation("org.springframework.cloud:spring-cloud-starter-gateway-server-webmvc")
 //        implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
@@ -60,5 +68,9 @@ subprojects {
 
     tasks.withType<Test> {
         useJUnitPlatform()
+        testLogging {
+            events("passed", "skipped", "failed")
+            showStandardStreams = true
+        }
     }
 }

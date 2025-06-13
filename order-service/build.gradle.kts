@@ -1,3 +1,5 @@
+group = "${rootProject.group}.order"
+
 allOpen {
     annotation("jakarta.persistence.Entity")
     annotation("jakarta.persistence.MappedSuperclass")
@@ -5,6 +7,7 @@ allOpen {
 }
 
 dependencies {
+    implementation(project(":common-module"))
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")

@@ -1,4 +1,4 @@
-package com.buoyancy.model.entity
+package com.buoyancy.common.model.entity
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming

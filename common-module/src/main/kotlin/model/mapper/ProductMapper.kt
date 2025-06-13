@@ -1,7 +1,7 @@
-package com.buoyancy.model.mapper
+package com.buoyancy.common.model.mapper
 
-import com.buoyancy.model.dto.ProductDto
-import com.buoyancy.model.entity.Product
+import com.buoyancy.common.model.dto.ProductDto
+import com.buoyancy.common.model.entity.Product
 import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.mapstruct.MappingConstants

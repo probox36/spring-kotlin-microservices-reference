@@ -1,0 +1,46 @@
+package com.buoyancy.service.impl
+
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.http.converter.HttpMessageNotReadableException
+import org.springframework.messaging.handler.annotation.support.MethodArgumentNotValidException
+import org.springframework.validation.FieldError
+import org.springframework.web.bind.annotation.ExceptionHandler
+import org.springframework.web.bind.annotation.RestControllerAdvice
+import java.sql.SQLException
+import java.util.*
+
+@RestControllerAdvice
+
+class GlobalExceptionHandler {
+
+    @ExceptionHandler(
+        BadRequestException::class,
+        org.springframework.web.bind.MethodArgumentNotValidException::class,
+        SQLException::class,
+        HttpMessageNotReadableException::class
+    )
+    fun badRequest(exception: Exception): ResponseEntity<ErrorDto> {
+        log.warn(exception.message)
+        val status = HttpStatus.BAD_REQUEST
+        val message: String =
+            messageSource.getMessage(status.name, null, Locale.of(GlobalExceptionHandler.DEFAULT_LOCALE))
+        val error: ErrorDto = ErrorDto(status.reasonPhrase, message)
+        return ResponseEntity.status(status.value()).body<ErrorDto>(error)
+    }
+    private fun buildValidationErrorMessage(exception: MethodArgumentNotValidException): String {
+        val str = StringBuilder()
+        return exception.bindingResult?.allErrors?.let { errors ->
+            for (e in errors) {
+                val fieldError = e as FieldError
+                str.append(fieldError.field)
+                    .append('=')
+                    .append(fieldError.rejectedValue)
+                    .append(", ")
+            }
+            str.deleteCharAt(str.length - 1)
+            str.deleteCharAt(str.length - 1)
+            str.toString()
+        } ?: throw IllegalStateException("Exception.bindingResult is null")
+    }
+}

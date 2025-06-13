@@ -14,21 +14,23 @@ spring:
     locale: en_EN
     locale-resolver: fixed
 
-#  kafka:
-#    consumer:
-#      bootstrap-servers: localhost:9092
-#      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+  kafka:
+    bootstrap-server: localhost:9092
+    consumer:
+      bootstrap-servers: ${spring.kafka.bootstrap-server}
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 #      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-#      group-id: sharding-notifications
-#      properties:
-#        spring:
-#          json:
-#            #            value:
-#            #              default:
-#            #                type: org.example.entity.Notification
-#            trusted:
-#              packages: org.example,org.acme,org.springframework
-#
+      group-id: foodtech
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: com.buoyancy,org.acme,org.springframework
+    producer:
+      bootstrap-servers: ${spring.kafka.bootstrap-server}
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
   datasource:
     host: localhost:5432
     database-name: foodtech
@@ -41,6 +43,6 @@ spring:
 
   flyway:
     url: jdbc:${spring.datasource.base-url}
-    locations: classpath:migration
+    locations: common-module/src/main/resources/migration
     user: ${spring.datasource.username}
     password: ${spring.datasource.password}

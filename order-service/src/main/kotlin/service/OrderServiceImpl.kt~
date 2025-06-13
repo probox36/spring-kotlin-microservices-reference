@@ -1,0 +1,35 @@
+package com.buoyancy.service
+
+import com.buoyancy.model.entity.Order
+import com.buoyancy.model.entity.OrderStatus
+import com.buoyancy.repository.OrderRepository
+import com.buoyancy.repository.ProductRepository
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Service
+import java.util.*
+
+@Service
+class OrderServiceImpl : OrderService {
+
+    @Autowired
+    private lateinit var orderRepository: OrderRepository
+    @Autowired
+    private lateinit var productRepository: ProductRepository
+    override fun createOrder(order: Order): Order {
+        return orderRepository.save(order)
+    }
+
+    override fun updateStatus(id: UUID, status: OrderStatus) {
+        orderRepository.updateStatus(id, status)
+    }
+
+    override fun getStatus(id: UUID): OrderStatus {
+        orderRepository.findById(id)
+    }
+
+    override fun cancelOrder(id: UUID) {
+        TODO("Not yet implemented")
+    }
+
+
+}
