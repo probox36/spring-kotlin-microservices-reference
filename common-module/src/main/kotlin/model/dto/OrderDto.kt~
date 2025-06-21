@@ -9,7 +9,7 @@ import java.util.*
 data class OrderDto(
     @NotNull var id: UUID? = null,
     @NotNull var userId: UUID,
-    @NotNull var createdAt: LocalDateTime,
+    @NotNull var date: LocalDateTime,
     @NotNull var status: OrderStatus,
     @NotEmpty var items: List<UUID> = emptyList()
 )

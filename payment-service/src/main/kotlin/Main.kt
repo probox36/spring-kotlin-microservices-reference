@@ -1,4 +1,4 @@
-package com.buoyancy
+package com.buoyancy.payment
 
 fun main() {
     println("Hello World!")

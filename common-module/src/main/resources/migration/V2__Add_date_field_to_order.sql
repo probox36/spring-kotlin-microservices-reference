@@ -1,0 +1,2 @@
+ALTER TABLE orders
+ADD created_at TIMESTAMP NOT NULL;

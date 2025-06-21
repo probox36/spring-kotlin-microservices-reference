@@ -1,4 +1,4 @@
-// import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
+import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
 
 plugins {
     kotlin("jvm") version "1.9.25"
@@ -34,12 +34,15 @@ subprojects {
         }
     }
 
-//    configure<DependencyManagementExtension> {
+    configure<DependencyManagementExtension> {
 
-//        imports {
-//            mavenBom("org.springframework.cloud:spring-cloud-dependencies:${property("springCloudVersion")}")
-//        }
-//    }
+        imports {
+            // mavenBom("org.springframework.cloud:spring-cloud-dependencies:${property("springCloudVersion")}")
+
+            applyMavenExclusions(false) // turns off maven exclusions processing for spring dependency management plugin
+            // which dramatically speeds up the build process (and gets rid of slow detachedConfiguration tasks)
+        }
+    }
 
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
         kotlinOptions {

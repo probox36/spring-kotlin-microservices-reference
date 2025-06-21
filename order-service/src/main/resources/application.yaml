@@ -43,6 +43,6 @@ spring:
 
   flyway:
     url: jdbc:${spring.datasource.base-url}
-    locations: common-module/src/main/resources/migration
+    locations: classpath:migration
     user: ${spring.datasource.username}
     password: ${spring.datasource.password}
