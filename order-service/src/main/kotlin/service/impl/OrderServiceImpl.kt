@@ -37,4 +37,19 @@ class OrderServiceImpl : OrderService {
             NotFoundException("Order with id $id not found")
         }
     }
+
+    override fun getOrderById(id: UUID): Order? {
+        return orderRepository.findById(id).orElse(null)
+    }
+
+    override fun updateOrder(id: UUID, updatedOrder: Order) {
+        val existingOrder = orderRepository.findById(id)
+            .orElseThrow { NotFoundException("Order with ID $id not found") }
+
+        existingOrder.user = updatedOrder.user
+        existingOrder.status = updatedOrder.status
+        existingOrder.items = updatedOrder.items
+
+        orderRepository.save(existingOrder)
+    }
 }

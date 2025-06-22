@@ -38,4 +38,17 @@ class OrderController {
         orderService.cancelOrder(id)
         return ResponseEntity.noContent().build()
     }
+
+    @GetMapping("/{id}")
+    fun getOrder(@PathVariable id: UUID): ResponseEntity<OrderDto> {
+        val order = orderService.getOrder(id)
+        return ResponseEntity.ok(orderMapper.toDto(order))
+    }
+
+    @PostMapping
+    fun updateOrder(@Valid @RequestBody orderDto: OrderDto): ResponseEntity<OrderDto> {
+        val order = orderMapper.toEntity(orderDto)
+        order.id?.let { orderService.updateOrder(it, order) }
+        return ResponseEntity.ok(orderMapper.toDto(order))
+    }
 }

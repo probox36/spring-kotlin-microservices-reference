@@ -11,4 +11,7 @@ interface OrderService {
     fun getStatus(id: UUID): OrderStatus
     fun cancelOrder(id: UUID)
     fun getOrder(id: UUID): Order
+    fun getOrderById(id: UUID): Order?
+    fun updateOrder(id: UUID, updatedOrder: Order)
+
 }
