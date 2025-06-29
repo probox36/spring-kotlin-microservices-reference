@@ -14,8 +14,9 @@ import com.buoyancy.order.OrderServiceApplication
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito
+import org.mockito.kotlin.any
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.jpa.repository.JpaRepository
@@ -78,9 +79,9 @@ class MapperTest {
     fun `should map OrderDto to Order`() {
         // Given
         val orderDto = OrderDto(UUID.randomUUID(), userDto.id, LocalDateTime.now(), OrderStatus.READY, productIds)
-        Mockito.`when`(userRepository.getReferenceById(any(UUID::class.java))).thenReturn(user)
-        Mockito.`when`(productRepository.getReferenceById(productIds[0])).thenReturn(product1)
-        Mockito.`when`(productRepository.getReferenceById(productIds[1])).thenReturn(product2)
+        whenever(userRepository.getReferenceById(any<UUID>())).thenReturn(user)
+        whenever(productRepository.getReferenceById(productIds[0])).thenReturn(product1)
+        whenever(productRepository.getReferenceById(productIds[1])).thenReturn(product2)
 
         // When
         val order = orderMapper.toEntity(orderDto)
@@ -92,9 +93,9 @@ class MapperTest {
         assertEquals(order.items[0].id, productIds[0])
         assertEquals(order.items[1].id, productIds[1])
         assertEquals(order.user.id, userDto.id)
-        Mockito.verify(productRepository).getReferenceById(productIds[0])
-        Mockito.verify(productRepository).getReferenceById(productIds[1])
-        Mockito.verify(userRepository).getReferenceById(userId)
+        verify(productRepository).getReferenceById(productIds[0])
+        verify(productRepository).getReferenceById(productIds[1])
+        verify(userRepository).getReferenceById(userId)
     }
 
     @Test

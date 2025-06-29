@@ -1,7 +1,7 @@
 package com.buoyancy.service.impl
 
 import com.buoyancy.common.exceptions.BadRequestException
-import com.buoyancy.common.model.dto.rest.ErrorDto
+import com.buoyancy.common.model.dto.rest.MessageDto
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.http.HttpStatus.*
 import org.springframework.http.ResponseEntity
@@ -17,7 +17,7 @@ class GlobalExceptionHandler {
 
     private val log = KotlinLogging.logger {}
     @ExceptionHandler( BadRequestException::class )
-    fun processBadRequestException(exception: Exception): ResponseEntity<ErrorDto> {
+    fun processBadRequestException(exception: Exception): ResponseEntity<MessageDto> {
 
         log.warn { "Bad request exception thrown: ${ exception.message }" }
         val status = BAD_REQUEST
@@ -25,22 +25,22 @@ class GlobalExceptionHandler {
         return when (exception.message) {
 
             null -> ResponseEntity.status(status)
-                .body(ErrorDto(status, "Bad request"))
+                .body(MessageDto(status, "Bad request"))
 
             else -> ResponseEntity.status(status)
-                .body(ErrorDto(status, exception.message!!))
+                .body(MessageDto(status, exception.message!!))
         }
     }
 
     @ExceptionHandler( MethodArgumentNotValidException::class )
-    fun processValidationException(exception: MethodArgumentNotValidException): ResponseEntity<ErrorDto> {
+    fun processValidationException(exception: MethodArgumentNotValidException): ResponseEntity<MessageDto> {
 
         log.warn { "Validation exception thrown: ${ exception.message }" }
         val status = INTERNAL_SERVER_ERROR
         val errors = exception.bindingResult?.allErrors
 
         return ResponseEntity.status(status)
-            .body(ErrorDto(
+            .body(MessageDto(
                 statusCode = status,
                 message = if (!errors.isNullOrEmpty()) buildValidationErrorMessage(errors) else "Bad request"
             ))

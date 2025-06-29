@@ -1,0 +1,4 @@
+package com.buoyancy.common.model.interfaces
+
+class OrderMessage {
+}

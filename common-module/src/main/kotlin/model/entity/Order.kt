@@ -14,7 +14,7 @@ data class Order(
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    var id: UUID?,
+    var id: UUID,
 
     @ManyToOne
     @JoinColumn(name = "user_id")

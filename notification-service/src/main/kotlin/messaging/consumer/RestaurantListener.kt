@@ -1,0 +1,38 @@
+package com.buoyancy.notification.messaging.consumer
+
+import com.buoyancy.common.model.dto.messaging.events.RestaurantEvent
+import com.buoyancy.common.model.enums.RestaurantStatus
+import com.buoyancy.notification.service.MailService
+import com.buoyancy.notification.util.get
+import io.github.oshai.kotlinlogging.KotlinLogging
+import org.apache.kafka.clients.consumer.ConsumerRecord
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.MessageSource
+import org.springframework.kafka.annotation.KafkaListener
+import org.springframework.stereotype.Component
+
+@Component
+class RestaurantListener {
+
+    private val log = KotlinLogging.logger {}
+
+    @Autowired
+    private lateinit var messages : MessageSource
+    @Autowired
+    private lateinit var email: MailService
+
+    @KafkaListener(topics = ["restaurant"])
+    fun receiveRestaurantRecord(eventRecord: ConsumerRecord<String, RestaurantEvent>) {
+        log.info { "Received restaurant event ${eventRecord.value()}" }
+
+        val event = eventRecord.value()
+        when (event.type) {
+            RestaurantStatus.READY -> email.send(
+                to = event.userEmail,
+                subject = messages.get("subjects.order"),
+                body = messages.get("notifications.restaurant.ready", arrayOf(event.orderId))
+            )
+            RestaurantStatus.PREPARING -> {}
+        }
+    }
+}

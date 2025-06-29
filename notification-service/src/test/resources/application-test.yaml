@@ -1,0 +1,28 @@
+spring:
+  kafka:
+    bootstrap-server: localhost:9092
+    consumer:
+      auto-offset-reset: earliest
+      bootstrap-servers: ${spring.kafka.bootstrap-server}
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      group-id: foodtech
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: com.buoyancy.*,org.acme,org.springframework
+          deserializer:
+            value:
+              delegate:
+                class: org.springframework.kafka.support.serializer.JsonDeserializer
+    producer:
+      bootstrap-servers: ${spring.kafka.bootstrap-server}
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    admin:
+      properties:
+        auto:
+          create:
+            topics:
+              enable: true

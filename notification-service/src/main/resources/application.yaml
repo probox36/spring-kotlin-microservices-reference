@@ -1,5 +1,5 @@
 server:
-  port: 8081
+  port: 8082
 
 logging:
   level:
@@ -8,7 +8,7 @@ logging:
 
 spring:
   application:
-    name: foodtech-order-service
+    name: foodtech-notification-service
 
   web:
     locale: en_EN
@@ -16,34 +16,35 @@ spring:
 
   kafka:
     bootstrap-server: localhost:9092
+
     consumer:
       bootstrap-servers: ${spring.kafka.bootstrap-server}
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       group-id: foodtech
       properties:
         spring:
           json:
             trusted:
-              packages: com.buoyancy,org.acme,org.springframework
+              packages: com.buoyancy.*,org.acme,org.springframework
+          deserializer:
+            value:
+              delegate:
+                class: org.springframework.kafka.support.serializer.JsonDeserializer
     producer:
       bootstrap-servers: ${spring.kafka.bootstrap-server}
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
-  datasource:
-    host: localhost:5432
-    database-name: foodtech
-    base-url: postgresql://${spring.datasource.host}/${spring.datasource.database-name}
-    driver-class-name: org.postgresql.Driver
-    username: postgres
-#   TODO: Убрать
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: probox36@gmail.com
+#    TODO: Убрать
     password: ""
-    url: jdbc:${spring.datasource.base-url}
-    show-sql: true
-
-  flyway:
-    url: jdbc:${spring.datasource.base-url}
-    locations: classpath:migration
-    user: ${spring.datasource.username}
-    password: ${spring.datasource.password}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
