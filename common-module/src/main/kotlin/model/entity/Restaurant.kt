@@ -1,0 +1,26 @@
+package com.buoyancy.common.model.entity
+
+import com.buoyancy.common.model.enums.CuisineType
+import com.fasterxml.jackson.databind.PropertyNamingStrategies
+import com.fasterxml.jackson.databind.annotation.JsonNaming
+import jakarta.persistence.*
+import java.util.*
+
+@Entity
+@Table(name = "restaurants")
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
+data class Restaurant (
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    val id: UUID,
+
+    var name: String,
+    var address: String,
+    var phoneNumber: String,
+    var email: String,
+
+    @Enumerated(EnumType.STRING)
+    var cuisineType: CuisineType,
+    var operating: Boolean
+)
