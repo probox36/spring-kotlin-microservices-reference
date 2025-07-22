@@ -16,7 +16,7 @@ class MailServiceTest {
     fun testSend() {
         notificationService.send(
             // TODO: Убрать
-            to = "",
+            to = ,
             subject = "Test Email",
             body = "This is a test email from NotificationServiceTest"
         )

@@ -7,12 +7,8 @@ import java.util.*
 
 data class UserDto (
 
-    @NotNull
-    var id: UUID,
-    @NotBlank
-    var name: String,
-    @NotBlank
-    var lastName: String,
-    @Email
-    var email: String
+    @NotNull var id: UUID,
+    @NotBlank var name: String,
+    @NotBlank var lastName: String,
+    @Email var email: String
 )

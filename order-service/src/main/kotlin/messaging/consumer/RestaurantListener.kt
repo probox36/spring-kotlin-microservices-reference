@@ -4,13 +4,12 @@ import com.buoyancy.common.model.dto.messaging.events.RestaurantEvent
 import com.buoyancy.common.model.enums.OrderStatus
 import com.buoyancy.common.model.enums.RestaurantStatus
 import com.buoyancy.order.service.impl.OrderServiceImpl
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.kafka.annotation.KafkaListener
 
-class RestaurantsListener {
+class RestaurantListener {
 
     private val log = KotlinLogging.logger {}
 

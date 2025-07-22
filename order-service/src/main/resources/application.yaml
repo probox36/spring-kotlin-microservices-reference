@@ -38,7 +38,7 @@ spring:
     driver-class-name: org.postgresql.Driver
     username: postgres
 #   TODO: Убрать
-    password: ""
+    password:
     url: jdbc:${spring.datasource.base-url}
     show-sql: true
 

@@ -25,5 +25,9 @@ data class Order(
     var status: OrderStatus,
 
     @OneToMany(targetEntity = Product::class)
+    @JoinTable(name="orders_items",
+        joinColumns = [JoinColumn(name="order_id", referencedColumnName="id")],
+        inverseJoinColumns = [JoinColumn(name="product_id", referencedColumnName="id")]
+    )
     var items: List<Product> = emptyList()
 )

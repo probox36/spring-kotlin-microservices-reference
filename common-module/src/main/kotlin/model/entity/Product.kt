@@ -1,5 +1,6 @@
 package com.buoyancy.common.model.entity
 
+import com.buoyancy.common.model.enums.CuisineType
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import jakarta.persistence.*
@@ -14,5 +15,9 @@ data class Product (
     @GeneratedValue(strategy = GenerationType.UUID)
     var id: UUID,
     var name: String,
-    var price: Long
+    var price: Long,
+
+    @ManyToOne
+    @JoinColumn(name = "restaurant_id")
+    var restaurant: Restaurant
 )

@@ -7,5 +7,6 @@ import java.util.*
 data class ProductDto(
     @NotNull var id: UUID? = null,
     @NotBlank var name: String,
-    @NotNull var price: Long
+    @NotNull var price: Long,
+    @NotNull var restaurantId: UUID
 )

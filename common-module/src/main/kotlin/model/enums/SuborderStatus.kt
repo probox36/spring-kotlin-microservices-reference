@@ -1,4 +1,7 @@
 package com.buoyancy.common.model.enums
 
-enum class SuborderStatus {
+import com.buoyancy.common.model.interfaces.Status
+
+enum class SuborderStatus : Status {
+    CREATED, PREPARING, POSTPONED, READY, CANCELLED
 }

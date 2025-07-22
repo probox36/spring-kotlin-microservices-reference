@@ -41,7 +41,7 @@ spring:
     port: 587
     username: probox36@gmail.com
 #    TODO: Убрать
-    password: ""
+    password:
     properties:
       mail:
         smtp:

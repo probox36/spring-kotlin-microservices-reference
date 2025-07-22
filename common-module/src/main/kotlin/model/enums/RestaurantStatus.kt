@@ -3,5 +3,5 @@ package com.buoyancy.common.model.enums
 import com.buoyancy.common.model.interfaces.Status
 
 enum class RestaurantStatus : Status {
-    PREPARING, READY
+    PREPARING, POSTPONED, READY
 }

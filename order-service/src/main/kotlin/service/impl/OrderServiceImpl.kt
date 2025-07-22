@@ -8,7 +8,9 @@ import com.buoyancy.common.model.enums.OrderStatus
 import com.buoyancy.common.model.mapper.OrderMapper
 import com.buoyancy.order.messaging.producer.OrderTemplate
 import com.buoyancy.order.repository.OrderRepository
+import com.buoyancy.order.repository.SuborderRepository
 import com.buoyancy.order.service.OrderService
+import com.buoyancy.order.service.SuborderService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -20,17 +22,15 @@ class OrderServiceImpl : OrderService {
     private val log = KotlinLogging.logger {}
 
     @Autowired
-    private lateinit var repository: OrderRepository
+    private lateinit var repo: OrderRepository
     @Autowired
     private lateinit var kafka: OrderTemplate
-    @Autowired
-    private lateinit var mapper: OrderMapper
 
     override fun createOrder(order: Order): Order {
-        log.info { "Creating order ${order.id}" }
+        log.info { "Creating order" }
         order.status = OrderStatus.CREATED
         kafka.sendOrderEvent(OrderEvent(order, OrderStatus.CREATED))
-        val saved = repository.save(order)
+        val saved = repo.save(order)
         log.info { "Order ${order.id} created" }
         return saved
         // TODO: Remove double conversion (DTO -> Entity -> DTO)
@@ -40,7 +40,7 @@ class OrderServiceImpl : OrderService {
         log.info { "Updating status of order $id from ${getStatus(id)} to $status" }
         val order = getOrder(id)
         order.status = status
-        repository.save(order)
+        repo.save(order)
         kafka.sendOrderEvent(OrderEvent(order, status))
         log.info { "Updated status of order $id from ${getStatus(id)} to $status" }
     }
@@ -54,7 +54,7 @@ class OrderServiceImpl : OrderService {
     }
 
     override fun getOrder(id: UUID): Order {
-        return repository.findById(id).orElseThrow {
+        return repo.findById(id).orElseThrow {
             NotFoundException("Order with id $id not found")
         }
     }
@@ -69,11 +69,10 @@ class OrderServiceImpl : OrderService {
 
     override fun updateOrder(id: UUID, update: Order) {
         val order = getOrder(id)
-
         order.user = update.user
         order.status = update.status
         order.items = update.items
         log.info { "Updated order ${order.id} to $order" }
-        repository.save(order)
+        repo.save(order)
     }
 }

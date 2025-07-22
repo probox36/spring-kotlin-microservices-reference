@@ -1,6 +1,7 @@
 package com.buoyancy.order.service
 
 import com.buoyancy.common.model.entity.Order
+import com.buoyancy.common.model.entity.Suborder
 import com.buoyancy.common.model.enums.OrderStatus
 import java.util.*
 
@@ -13,5 +14,4 @@ interface OrderService {
     fun closeOrder(id: UUID)
     fun getOrder(id: UUID): Order
     fun updateOrder(id: UUID, updatedOrder: Order)
-
 }
