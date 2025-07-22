@@ -2,7 +2,7 @@ package com.buoyancy.notification.messaging.consumer
 import com.buoyancy.common.model.dto.messaging.events.OrderEvent
 import com.buoyancy.common.model.enums.OrderStatus
 import com.buoyancy.notification.service.MailService
-import com.buoyancy.notification.util.get
+import com.buoyancy.common.utils.get
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.beans.factory.annotation.Autowired
@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component
 class OrderListener() {
 
     private val log = KotlinLogging.logger {}
-
     @Autowired
     private lateinit var messages : MessageSource
     @Autowired

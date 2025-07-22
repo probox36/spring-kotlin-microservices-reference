@@ -1,4 +1,4 @@
-package com.buoyancy.notification.util
+package com.buoyancy.common.utils
 
 import org.springframework.context.MessageSource
 import java.util.Locale

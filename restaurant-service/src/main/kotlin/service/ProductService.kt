@@ -10,11 +10,11 @@ import java.util.UUID
 interface ProductService {
 
     fun createProduct(product: Product)
-    fun updateProduct(id: UUID, product: Product)
+    fun updateProduct(id: UUID, product: Product): Product
     fun deleteProduct(id: UUID)
     fun getProduct(id: UUID): Product
-    fun getProducts(pageable: Pageable): List<Product>
+    fun getProducts(pageable: Pageable): Page<Product>
     fun getProductsByRestaurant(restaurantId: UUID, pageable: Pageable): Page<Product>
-    fun updateName(id: UUID, name: String)
-    fun updatePrice(id: UUID, price: Long)
+    fun updateName(id: UUID, name: String): Product
+    fun updatePrice(id: UUID, price: Long): Product
 }

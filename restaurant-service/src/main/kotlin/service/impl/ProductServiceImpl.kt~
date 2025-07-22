@@ -18,10 +18,9 @@ class ProductServiceImpl : ProductService {
         repo.save(product)
     }
 
-    override fun updateProduct(id: UUID, product: Product): Product {
+    override fun updateProduct(id: UUID, product: Product) {
         product.id = id
         repo.save(product)
-        return product
     }
 
     override fun deleteProduct(id: UUID) {
@@ -42,17 +41,15 @@ class ProductServiceImpl : ProductService {
         return repo.findByRestaurantId(restaurantId, pageable)
     }
 
-    override fun updateName(id: UUID, name: String) : Product {
+    override fun updateName(id: UUID, name: String) {
         val product = getProduct(id)
         product.name = name
         repo.save(product)
-        return product
     }
 
-    override fun updatePrice(id: UUID, price: Long): Product {
+    override fun updatePrice(id: UUID, price: Long) {
         val product = getProduct(id)
         product.price = price
         repo.save(product)
-        return product
     }
 }
