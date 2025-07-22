@@ -7,5 +7,5 @@ import java.util.*
 
 data class SuborderEvent(
     @NotNull override val type: SuborderStatus,
-    @NotNull val suborderId: UUID,
+    @NotNull val suborderId: UUID
 ) : Event

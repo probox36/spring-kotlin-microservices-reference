@@ -5,12 +5,9 @@ import com.buoyancy.common.exceptions.NotFoundException
 import com.buoyancy.common.model.dto.messaging.events.OrderEvent
 import com.buoyancy.common.model.entity.Order
 import com.buoyancy.common.model.enums.OrderStatus
-import com.buoyancy.common.model.mapper.OrderMapper
 import com.buoyancy.order.messaging.producer.OrderTemplate
 import com.buoyancy.order.repository.OrderRepository
-import com.buoyancy.order.repository.SuborderRepository
 import com.buoyancy.order.service.OrderService
-import com.buoyancy.order.service.SuborderService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service

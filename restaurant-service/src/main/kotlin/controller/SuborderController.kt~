@@ -46,7 +46,7 @@ class SuborderController {
     fun getSubordersByRestaurant(@PathVariable restaurantId: UUID, pageable: Pageable): Page<Suborder> {
         return service.getSubordersByRestaurant(restaurantId, pageable)
     }
-
+    
     @GetMapping("/{id}")
     fun getSuborder(@PathVariable id: UUID): Suborder {
         return service.getSuborder(id)

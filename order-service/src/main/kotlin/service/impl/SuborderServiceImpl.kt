@@ -34,22 +34,6 @@ class SuborderServiceImpl : SuborderService {
         return saved
     }
 
-    override fun getStatus(id: UUID): SuborderStatus {
-        return getSuborder(id).status
-    }
-
-    override fun markSuborderAsPreparing(id: UUID) {
-        updateStatus(id, PREPARING)
-    }
-
-    override fun markSuborderAsPostponed(id: UUID) {
-        updateStatus(id, POSTPONED)
-    }
-
-    override fun markSuborderAsReady(id: UUID) {
-        updateStatus(id, READY)
-    }
-
     override fun updateStatus(id: UUID, status: SuborderStatus) {
         val suborder = getSuborder(id)
         suborder.status = status

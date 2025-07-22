@@ -5,6 +5,7 @@ import com.buoyancy.common.model.enums.OrderStatus
 import com.buoyancy.common.model.enums.SuborderStatus
 import com.buoyancy.common.model.enums.SuborderStatus.*
 import com.buoyancy.order.repository.SuborderRepository
+import com.buoyancy.order.service.OrderService
 import com.buoyancy.order.service.impl.SuborderServiceImpl
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -20,6 +21,8 @@ class OrderListener {
     private lateinit var suborderService: SuborderServiceImpl
     @Autowired
     private lateinit var suborderRepository: SuborderRepository
+    @Autowired
+    private lateinit var orderService: OrderService
 
     @KafkaListener(topics = ["orders"])
     fun receiveOrderRecord(eventRecord: ConsumerRecord<String, OrderEvent>) {
@@ -28,7 +31,11 @@ class OrderListener {
         val id = event.orderId
 
         when (event.type) {
-            OrderStatus.CREATED -> updateChildSuborders(id, CREATED)
+            OrderStatus.CREATED -> {
+                val order = orderService.getOrder(id)
+                val suborders = suborderService.splitToSuborders(order)
+                suborders.forEach { suborderService.createSuborder(it) }
+            }
             OrderStatus.CANCELLED -> updateChildSuborders(id, CANCELLED)
             else -> {}
         }

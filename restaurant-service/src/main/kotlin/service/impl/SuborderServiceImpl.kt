@@ -1,0 +1,72 @@
+package com.buoyancy.restaurant.service.impl
+
+import com.buoyancy.common.exceptions.NotFoundException
+import com.buoyancy.common.model.dto.messaging.events.SuborderEvent
+import com.buoyancy.common.model.entity.Restaurant
+import com.buoyancy.common.model.entity.Suborder
+import com.buoyancy.common.model.enums.SuborderStatus
+import com.buoyancy.common.model.enums.SuborderStatus.*
+import com.buoyancy.restaurant.messaging.producer.SuborderTemplate
+import com.buoyancy.restaurant.repository.SuborderRepository
+import com.buoyancy.restaurant.service.SuborderService
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
+import java.util.UUID
+
+class SuborderServiceImpl : SuborderService {
+
+    @Autowired
+    private lateinit var repo: SuborderRepository
+    @Autowired
+    private lateinit var kafka: SuborderTemplate
+
+    override fun getSubordersByRestaurant(restaurantId: UUID, pageable: Pageable): Page<Suborder> {
+        return repo.findByRestaurantId(restaurantId, pageable)
+    }
+
+    override fun getSubordersByRestaurant(restaurant: Restaurant, pageable: Pageable): Page<Suborder> {
+        return repo.findByRestaurant(restaurant, pageable)
+    }
+
+    override fun markSuborderAsPreparing(id: UUID) {
+        updateStatus(id, PREPARING)
+    }
+
+    override fun markSuborderAsPreparing(suborder: Suborder) {
+        updateStatus(suborder, PREPARING)
+    }
+
+    override fun markSuborderAsReady(id: UUID) {
+        updateStatus(id, READY)
+    }
+
+    override fun markSuborderAsReady(suborder: Suborder) {
+        updateStatus(suborder, READY)
+    }
+
+    override fun postponeSuborder(id: UUID) {
+        updateStatus(id, POSTPONED)
+    }
+
+    override fun postponeSuborder(suborder: Suborder) {
+        updateStatus(suborder, POSTPONED)
+    }
+
+    override fun getSuborder(id: UUID): Suborder {
+        return repo.findById(id).orElseThrow {
+            NotFoundException("Suborder with id $id not found")
+        }
+    }
+
+    private fun updateStatus(id: UUID, status: SuborderStatus) {
+        val suborder = getSuborder(id)
+        suborder.status = status
+        repo.save(suborder)
+        kafka.sendSuborderEvent(SuborderEvent(status, id))
+    }
+
+    private fun updateStatus(suborder: Suborder, status: SuborderStatus) {
+        updateStatus(suborder.id, status)
+    }
+}
