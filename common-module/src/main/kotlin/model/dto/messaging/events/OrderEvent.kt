@@ -11,8 +11,8 @@ import java.util.*
 
 data class OrderEvent(
     @NotNull override val type: OrderStatus,
-    @NotNull override val orderId: UUID,
-    @NotNull override val userId: UUID,
+    @NotNull override val orderId: UUID?,
+    @NotNull override val userId: UUID?,
     @Email override val userEmail: String
 ) : Event, Message {
 

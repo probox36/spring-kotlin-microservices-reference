@@ -19,17 +19,22 @@ class RestaurantListener {
     @KafkaListener(topics = ["restaurants"])
     fun receiveRestaurantRecord(eventRecord: ConsumerRecord<String, RestaurantEvent>) {
         log.info { "Received restaurant event ${eventRecord.value()}" }
-
         val event = eventRecord.value()
+
+        if (event.orderId == null) {
+            log.error { "Received restaurant event of type ${event.type} with null order id" }
+            return
+        }
+
         when (event.type) {
             RestaurantStatus.PREPARING -> {
-                orderService.updateStatus(event.orderId, OrderStatus.PREPARING)
+                orderService.updateStatus(event.orderId!!, OrderStatus.PREPARING)
             }
             RestaurantStatus.READY -> {
-                orderService.updateStatus(event.orderId, OrderStatus.READY)
+                orderService.updateStatus(event.orderId!!, OrderStatus.READY)
             }
             RestaurantStatus.POSTPONED -> {
-                orderService.updateStatus(event.orderId, OrderStatus.POSTPONED)
+                orderService.updateStatus(event.orderId!!, OrderStatus.POSTPONED)
             }
         }
     }

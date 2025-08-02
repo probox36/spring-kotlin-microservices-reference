@@ -1,15 +1,18 @@
 package com.buoyancy.order.messaging.consumer
 
+import com.buoyancy.common.exceptions.InternalErrorException
 import com.buoyancy.common.model.dto.messaging.events.OrderEvent
 import com.buoyancy.common.model.enums.OrderStatus
 import com.buoyancy.common.model.enums.SuborderStatus
 import com.buoyancy.common.model.enums.SuborderStatus.*
+import com.buoyancy.common.utils.get
 import com.buoyancy.order.repository.SuborderRepository
 import com.buoyancy.order.service.OrderService
 import com.buoyancy.order.service.impl.SuborderServiceImpl
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.MessageSource
 import org.springframework.kafka.annotation.KafkaListener
 import java.util.UUID
 
@@ -30,6 +33,11 @@ class OrderListener {
         val event = eventRecord.value()
         val id = event.orderId
 
+        if (id == null) {
+            log.error { "Received order event of type ${event.type} with null id" }
+            return
+        }
+
         when (event.type) {
             OrderStatus.CREATED -> {
                 val order = orderService.getOrder(id)
@@ -43,6 +51,13 @@ class OrderListener {
 
     private fun updateChildSuborders(orderId: UUID, status: SuborderStatus) {
         val suborders = suborderRepository.findByOrderId(orderId)
-        suborders.forEach { suborder -> suborderService.updateStatus(suborder.id, status) }
+        log.info { "Updating status of ${suborders.size} suborders of order $orderId to $status" }
+        suborders.forEach { suborder ->
+            if (suborder.id != null) {
+                suborderService.updateStatus(suborder.id!!, status)
+            } else {
+                log.error { "Order $orderId has a suborder with null id: $suborder" }
+            }
+        }
     }
 }

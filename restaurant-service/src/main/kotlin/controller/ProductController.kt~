@@ -46,7 +46,7 @@ class ProductController {
     @DeleteMapping("/{id}/delete")
     fun deleteProduct(@PathVariable id: UUID) : MessageDto {
         service.deleteProduct(id)
-        val message = messages.get("rest.response.resource.deleted", id)
+        val message = messages.get("rest.response.resource.deleted", arrayOf(id))
         return MessageDto(200, message)
     }
 

@@ -12,8 +12,7 @@ data class User (
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    var id: UUID,
-
+    var id: UUID?,
     var name: String,
     var lastName: String,
     var email: String

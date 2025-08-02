@@ -13,7 +13,7 @@ data class Product (
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    var id: UUID,
+    var id: UUID?,
     var name: String,
     var price: Long,
 

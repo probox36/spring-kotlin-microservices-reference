@@ -45,7 +45,7 @@ abstract class SuborderMapper {
         return productIds.map { productRepository.getReferenceById(it) }
     }
 
-    protected fun mapProductsToIds(productIds: List<Product>): List<UUID> {
+    protected fun mapProductsToIds(productIds: List<Product>): List<UUID?> {
         return productIds.map { it.id }
     }
 }

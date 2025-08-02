@@ -23,19 +23,20 @@ class OrderListener() {
     fun receiveOrderRecord(eventRecord: ConsumerRecord<String, OrderEvent>) {
         log.info { "Received order event ${eventRecord.value()}" }
         val event = eventRecord.value()
+
+        fun send(messageBodyCode: String) {
+            email.send(
+                to = event.userEmail,
+                subject = messages.get("subjects.order"),
+                body = messages.get(messageBodyCode, event.orderId)
+            )
+        }
+
         when (event.type) {
-            OrderStatus.CREATED -> send(event, "notifications.order.created")
-            OrderStatus.CLOSED -> send(event, "notifications.order.closed")
-            OrderStatus.CANCELLED -> send(event, "notifications.order.cancelled")
+            OrderStatus.CREATED -> send("notifications.order.created")
+            OrderStatus.CLOSED -> send("notifications.order.closed")
+            OrderStatus.CANCELLED -> send("notifications.order.cancelled")
             else -> {}
         }
-    }
-
-    private fun send(event: OrderEvent, messageCode: String) {
-        email.send(
-            to = event.userEmail,
-            subject = messages.get("subjects.order"),
-            body = messages.get(messageCode, arrayOf(event.orderId))
-        )
     }
 }

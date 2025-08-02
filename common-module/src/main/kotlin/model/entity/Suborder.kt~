@@ -13,7 +13,7 @@ data class Suborder (
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    var id: UUID?,
+    var id: UUID,
 
     @ManyToOne
     @JoinColumn(name = "order_id")

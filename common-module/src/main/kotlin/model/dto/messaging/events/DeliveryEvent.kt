@@ -9,11 +9,11 @@ import java.util.*
 
 data class DeliveryEvent (
     @NotNull override val type: DeliveryStatus,
-    @NotNull override val orderId: UUID,
-    @NotNull override val userId: UUID,
+    @NotNull override val orderId: UUID?,
+    @NotNull override val userId: UUID?,
     @Email override val userEmail: String
 ) : Event, Message {
-    constructor(message: Message, type: DeliveryStatus) : this(
+    constructor(message: Message, type: DeliveryStatus) : this (
         userEmail = message.userEmail,
         orderId = message.orderId,
         userId = message.userId,

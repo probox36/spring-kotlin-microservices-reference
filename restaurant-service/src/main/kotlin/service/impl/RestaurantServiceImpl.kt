@@ -1,20 +1,36 @@
 package com.buoyancy.restaurant.service.impl
 
+import com.buoyancy.common.exceptions.ConflictException
 import com.buoyancy.common.exceptions.NotFoundException
 import com.buoyancy.common.model.entity.Restaurant
+import com.buoyancy.common.utils.get
 import com.buoyancy.restaurant.repository.RestaurantRepository
 import com.buoyancy.restaurant.service.RestaurantService
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.MessageSource
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
-import java.util.UUID
+import java.util.*
 
 @Service
 class RestaurantServiceImpl : RestaurantService {
 
+    private val log = KotlinLogging.logger {}
     @Autowired
     private lateinit var repo: RestaurantRepository
+    @Autowired
+    private lateinit var messages: MessageSource
+
+    override fun createRestaurant(restaurant: Restaurant): Restaurant {
+        if (restaurant.id != null && repo.existsById(restaurant.id!!)) {
+            val conflictMessage = messages.get("exceptions.conflict.restaurant", restaurant.id!!)
+            throw ConflictException(conflictMessage)
+        }
+        log.info { "Creating restaurant $restaurant" }
+        return repo.save(restaurant)
+    }
 
     override fun getRestaurants(pageable: Pageable): Page<Restaurant> {
         return repo.findAll(pageable)
@@ -26,36 +42,42 @@ class RestaurantServiceImpl : RestaurantService {
         }
     }
 
-    override fun updateRestaurant(id: UUID, restaurant: Restaurant) {
+    override fun updateRestaurant(id: UUID, restaurant: Restaurant): Restaurant {
         restaurant.id = id
-        repo.save(restaurant)
+        log.info { "Updating restaurant $restaurant" }
+        return repo.save(restaurant)
     }
 
     override fun deleteRestaurant(id: UUID) {
+        log.info { "Deleting restaurant $id" }
         repo.deleteById(id)
     }
 
-    override fun updateName(id: UUID, name: String) {
+    override fun updateName(id: UUID, name: String): Restaurant {
         val restaurant = getRestaurant(id)
         restaurant.name = name
-        repo.save(restaurant)
+        log.info { "Updating name of restaurant ${restaurant.id} from ${restaurant.name} to $name" }
+        return repo.save(restaurant)
     }
 
-    override fun updateAddress(id: UUID, address: String) {
+    override fun updateAddress(id: UUID, address: String): Restaurant {
         val restaurant = getRestaurant(id)
         restaurant.address = address
-        repo.save(restaurant)
+        log.info { "Updating address of restaurant ${restaurant.id} from ${restaurant.address} to $address" }
+        return repo.save(restaurant)
     }
 
-    override fun updatePhone(id: UUID, phone: String) {
+    override fun updatePhone(id: UUID, phone: String): Restaurant {
         val restaurant = getRestaurant(id)
         restaurant.phoneNumber = phone
-        repo.save(restaurant)
+        log.info { "Updating phone number of restaurant ${restaurant.id} from ${restaurant.phoneNumber} to $phone" }
+        return repo.save(restaurant)
     }
 
-    override fun updateEmail(id: UUID, email: String) {
+    override fun updateEmail(id: UUID, email: String): Restaurant {
         val restaurant = getRestaurant(id)
         restaurant.email = email
-        repo.save(restaurant)
+        log.info { "Updating email of restaurant ${restaurant.id} from ${restaurant.email} to $email" }
+        return repo.save(restaurant)
     }
 }

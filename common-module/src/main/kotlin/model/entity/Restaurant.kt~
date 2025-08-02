@@ -13,7 +13,7 @@ data class Restaurant (
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    val id: UUID,
+    var id: UUID,
 
     var name: String,
     var address: String,

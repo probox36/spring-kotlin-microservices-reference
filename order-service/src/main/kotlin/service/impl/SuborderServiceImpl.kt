@@ -1,11 +1,11 @@
 package com.buoyancy.order.service.impl
 
+import com.buoyancy.common.exceptions.ConflictException
 import com.buoyancy.common.exceptions.NotFoundException
 import com.buoyancy.common.model.dto.messaging.events.SuborderEvent
 import com.buoyancy.common.model.entity.Order
 import com.buoyancy.common.model.entity.Restaurant
 import com.buoyancy.common.model.entity.Suborder
-import com.buoyancy.common.model.enums.OrderStatus
 import com.buoyancy.common.model.enums.SuborderStatus
 import com.buoyancy.common.model.enums.SuborderStatus.*
 import com.buoyancy.order.messaging.producer.SuborderTemplate
@@ -13,6 +13,7 @@ import com.buoyancy.order.repository.SuborderRepository
 import com.buoyancy.order.service.SuborderService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.MessageSource
 import java.util.UUID
 
 class SuborderServiceImpl : SuborderService {
@@ -23,15 +24,20 @@ class SuborderServiceImpl : SuborderService {
     private lateinit var repo: SuborderRepository
     @Autowired
     private lateinit var kafka: SuborderTemplate
+    @Autowired
+    private lateinit var messages: MessageSource
 
 
     override fun createSuborder(suborder: Suborder): Suborder {
-        log.info { "Creating suborder" }
+        if (suborder.id != null && repo.existsById(suborder.id!!)) {
+            throw ConflictException("Suborder with id ${suborder.id} already exists")
+        }
+        log.info { "Creating suborder for order ${suborder.order}" }
         suborder.status = CREATED
-        val saved = repo.save(suborder)
-        kafka.sendSuborderEvent(SuborderEvent(CREATED, saved.id))
-        log.info { "Suborder ${saved.id} created" }
-        return saved
+        val savedSuborder = repo.save(suborder)
+        kafka.sendSuborderEvent(SuborderEvent(CREATED, savedSuborder.id!!))
+        log.info { "Suborder ${savedSuborder.id} for order ${savedSuborder.order} created" }
+        return savedSuborder
     }
 
     override fun updateStatus(id: UUID, status: SuborderStatus) {
@@ -49,20 +55,22 @@ class SuborderServiceImpl : SuborderService {
     }
 
     override fun splitToSuborders(order: Order): List<Suborder> {
-        val suborders = hashMapOf<Restaurant, Suborder>()
+        val subordersMap = hashMapOf<Restaurant, Suborder>()
 
         for (item in order.items) {
-            if (item.restaurant !in suborders.keys) {
-                suborders[item.restaurant] = Suborder(
-                    id = UUID.randomUUID(),
+            if (item.restaurant !in subordersMap.keys) {
+                subordersMap[item.restaurant] = Suborder(
+                    id = null,
                     order = order,
                     restaurant = item.restaurant,
                     items = mutableListOf(),
                     status = CREATED
                 )
             }
-            suborders[item.restaurant]!!.items.add(item)
+            subordersMap[item.restaurant]!!.items.add(item)
         }
-        return suborders.values.toList()
+        val suborders = subordersMap.values.toList()
+        log.info { "Split order ${order.id} to ${suborders.size} suborders" }
+        return suborders
     }
 }

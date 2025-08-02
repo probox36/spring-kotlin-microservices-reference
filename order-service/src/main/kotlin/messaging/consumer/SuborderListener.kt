@@ -28,21 +28,27 @@ class SuborderListener {
         val event = eventRecord.value()
         val order = suborderService.getSuborder(event.suborderId).order
 
+        if (order.id == null) {
+            log.error { "Received suborder event of type ${event.type} with null order id" }
+            return
+        }
+
         when (event.type) {
             SuborderStatus.PREPARING -> {
                 if (order.status == OrderStatus.CREATED) {
-                    orderService.updateStatus(order.id, OrderStatus.PREPARING)
+                    orderService.updateStatus(order.id!!, OrderStatus.PREPARING)
                 }
             }
             SuborderStatus.POSTPONED -> {
                 if (order.status in arrayOf(OrderStatus.PREPARING, OrderStatus.CREATED)) {
-                    orderService.updateStatus(order.id, OrderStatus.POSTPONED)
+                    orderService.updateStatus(order.id!!, OrderStatus.POSTPONED)
                 }
             }
             SuborderStatus.READY -> {
                 val suborders = suborderRepo.findByOrder(order)
                 if (suborders.all { it.status == SuborderStatus.READY }) {
-                    orderService.updateStatus(order.id, OrderStatus.READY)
+                    log.info { "All suborders of order ${order.id} are ready. Updating parent order status" }
+                    orderService.updateStatus(order.id!!, OrderStatus.READY)
                 }
             }
             else -> {}

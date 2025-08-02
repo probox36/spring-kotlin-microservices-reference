@@ -9,8 +9,8 @@ import java.util.*
 
 data class PaymentEvent(
     @NotNull override val type: PaymentStatus,
-    @NotNull override val orderId: UUID,
-    @NotNull override val userId: UUID,
+    @NotNull override val orderId: UUID?,
+    @NotNull override val userId: UUID?,
     @Email override val userEmail: String,
     val errorReason: String? = null
 ): Event, Message {

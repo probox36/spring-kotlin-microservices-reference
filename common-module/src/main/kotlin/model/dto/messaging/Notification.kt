@@ -8,8 +8,8 @@ import java.util.*
 
 data class Notification (
     @Email override val userEmail: String,
-    @NotNull override val orderId: UUID,
-    @NotNull override val userId: UUID,
+    @NotNull override val orderId: UUID?,
+    @NotNull override val userId: UUID?,
     @NotBlank val message: String
 ): Message {
     constructor(event: Message, message: String) : this(

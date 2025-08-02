@@ -9,8 +9,8 @@ import java.util.*
 
 data class RestaurantEvent (
     @NotNull override val type: RestaurantStatus,
-    @NotNull override val orderId: UUID,
-    @NotNull override val userId: UUID,
+    @NotNull override val orderId: UUID?,
+    @NotNull override val userId: UUID?,
     @Email override val userEmail: String
 ) : Event, Message {
     constructor(message: Message, type: RestaurantStatus) : this(

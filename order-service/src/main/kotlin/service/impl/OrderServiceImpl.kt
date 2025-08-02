@@ -1,15 +1,18 @@
 package com.buoyancy.order.service.impl
 
 import com.buoyancy.common.exceptions.BadRequestException
+import com.buoyancy.common.exceptions.ConflictException
 import com.buoyancy.common.exceptions.NotFoundException
 import com.buoyancy.common.model.dto.messaging.events.OrderEvent
 import com.buoyancy.common.model.entity.Order
 import com.buoyancy.common.model.enums.OrderStatus
+import com.buoyancy.common.utils.get
 import com.buoyancy.order.messaging.producer.OrderTemplate
 import com.buoyancy.order.repository.OrderRepository
 import com.buoyancy.order.service.OrderService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.MessageSource
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -22,14 +25,20 @@ class OrderServiceImpl : OrderService {
     private lateinit var repo: OrderRepository
     @Autowired
     private lateinit var kafka: OrderTemplate
+    @Autowired
+    private lateinit var messages: MessageSource
 
     override fun createOrder(order: Order): Order {
-        log.info { "Creating order" }
+        if (order.id != null && repo.existsById(order.id!!)) {
+            val conflictMessage = messages.get("exceptions.conflict.suborder", order.id!!)
+            throw ConflictException(conflictMessage)
+        }
+        log.info { "Creating order for user ${order.user}" }
         order.status = OrderStatus.CREATED
-        kafka.sendOrderEvent(OrderEvent(order, OrderStatus.CREATED))
-        val saved = repo.save(order)
-        log.info { "Order ${order.id} created" }
-        return saved
+        val savedOrder = repo.save(order)
+        kafka.sendOrderEvent(OrderEvent(savedOrder, OrderStatus.CREATED))
+        log.info { "Order ${savedOrder.id} for user ${savedOrder.user} created" }
+        return savedOrder
         // TODO: Remove double conversion (DTO -> Entity -> DTO)
     }
 

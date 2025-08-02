@@ -11,6 +11,7 @@ import com.buoyancy.common.model.entity.Suborder
 import com.buoyancy.common.model.entity.User
 import com.buoyancy.common.model.enums.CuisineType
 import com.buoyancy.common.model.enums.OrderStatus
+import com.buoyancy.common.model.enums.SuborderStatus
 import com.buoyancy.common.model.mapper.OrderMapper
 import com.buoyancy.common.model.mapper.ProductMapper
 import com.buoyancy.common.model.mapper.SuborderMapper
@@ -55,7 +56,7 @@ class MapperTest {
     fun `should map ProductDto to Product`() {
         // Given
         whenever(restaurantRepository.getReferenceById(any<UUID>())).thenReturn(restaurant)
-        val productDto = ProductDto(UUID.randomUUID(), "Pickles", 1099, restaurant.id)
+        val productDto = ProductDto(UUID.randomUUID(), "Pickles", 1099, restaurant.id!!)
 
         // When
         val product = productMapper.toEntity(productDto)
@@ -89,7 +90,7 @@ class MapperTest {
     private final val productIds = listOf(UUID.randomUUID(), UUID.randomUUID())
     private val product1 = Product(productIds[0], "Pickles", 1099, restaurant)
     private val product2 = Product(productIds[1], "Cheese", 1590, restaurant)
-    private val orderItems = listOf(product1, product2)
+    private val orderItems = mutableListOf(product1, product2)
     private val order = Order(UUID.randomUUID(), user, LocalDateTime.now(), OrderStatus.READY, orderItems)
 
     @Test
@@ -180,7 +181,7 @@ class MapperTest {
     @Test
     fun `should map Suborder to SuborderDto`() {
         // Given
-        val suborder = Suborder(UUID.randomUUID(), order, restaurant, orderItems, OrderStatus.CREATED)
+        val suborder = Suborder(UUID.randomUUID(), order, restaurant, orderItems, SuborderStatus.CREATED)
 
         // When
         val suborderDto = suborderMapper.toDto(suborder)

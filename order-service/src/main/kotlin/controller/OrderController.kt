@@ -1,13 +1,16 @@
 package com.buoyancy.order.controller
 
 import com.buoyancy.common.model.dto.OrderDto
+import com.buoyancy.common.model.dto.rest.MessageDto
+import com.buoyancy.common.model.dto.rest.ResourceDto
 import com.buoyancy.common.model.enums.OrderStatus
 import com.buoyancy.common.model.mapper.OrderMapper
+import com.buoyancy.common.utils.get
 import com.buoyancy.order.service.OrderService
 import jakarta.validation.Valid
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.MessageSource
 import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.util.*
 
@@ -19,42 +22,45 @@ class OrderController {
     lateinit var orderService: OrderService
     @Autowired
     lateinit var orderMapper: OrderMapper
+    @Autowired
+    private lateinit var messages : MessageSource
 
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/create")
-    fun createOrder(@Valid @RequestBody orderDto: OrderDto): ResponseEntity<OrderDto> {
+    fun createOrder(@Valid @RequestBody orderDto: OrderDto): OrderDto {
         val order = orderMapper.toEntity(orderDto)
         val createdOrderId = orderService.createOrder(order)
-        return ResponseEntity.status(HttpStatus.CREATED).body(orderMapper.toDto(createdOrderId))
+        return orderMapper.toDto(createdOrderId)
     }
 
     @GetMapping("/{id}/status")
-    fun getOrderStatus(@PathVariable id: UUID): ResponseEntity<OrderStatus> {
+    fun getOrderStatus(@PathVariable id: UUID): OrderStatus {
         val orderStatus = orderService.getStatus(id)
-        return ResponseEntity.ok(orderStatus)
+        return orderStatus
     }
 
     @PutMapping("/{id}/cancel")
-    fun cancelOrder(@PathVariable id: UUID): ResponseEntity<Unit> {
+    fun cancelOrder(@PathVariable id: UUID): MessageDto {
         orderService.cancelOrder(id)
-        return ResponseEntity.noContent().build()
+        return MessageDto(200, messages.get("rest.order.status.cancelled"))
     }
 
     @PutMapping("/{id}/close")
-    fun closeOrder(@PathVariable id: UUID): ResponseEntity<Unit> {
+    fun closeOrder(@PathVariable id: UUID): MessageDto {
         orderService.cancelOrder(id)
-        return ResponseEntity.noContent().build()
+        return MessageDto(200, messages.get("rest.order.status.closed"))
     }
 
     @GetMapping("/{id}")
-    fun getOrder(@PathVariable id: UUID): ResponseEntity<OrderDto> {
+    fun getOrder(@PathVariable id: UUID): OrderDto {
         val order = orderService.getOrder(id)
-        return ResponseEntity.ok(orderMapper.toDto(order))
+        return orderMapper.toDto(order)
     }
 
     @PostMapping("/{id}/update")
-    fun updateOrder(@Valid @RequestBody orderDto: OrderDto): ResponseEntity<OrderDto> {
+    fun updateOrder(@Valid @RequestBody orderDto: OrderDto): ResourceDto {
         val order = orderMapper.toEntity(orderDto)
-        order.id.let { orderService.updateOrder(it, order) }
-        return ResponseEntity.ok(orderMapper.toDto(order))
+        order.id?.let { orderService.updateOrder(it, order) }
+        return ResourceDto(200, messages.get("rest.order.status.updated"), order)
     }
 }

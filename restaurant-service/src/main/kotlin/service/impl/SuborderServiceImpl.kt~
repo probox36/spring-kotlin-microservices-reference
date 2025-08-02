@@ -10,7 +10,6 @@ import com.buoyancy.common.utils.get
 import com.buoyancy.restaurant.messaging.producer.SuborderTemplate
 import com.buoyancy.restaurant.repository.SuborderRepository
 import com.buoyancy.restaurant.service.SuborderService
-import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.MessageSource
 import org.springframework.data.domain.Page
@@ -19,7 +18,6 @@ import java.util.UUID
 
 class SuborderServiceImpl : SuborderService {
 
-    private val log = KotlinLogging.logger {}
     @Autowired
     private lateinit var repo: SuborderRepository
     @Autowired
@@ -75,6 +73,5 @@ class SuborderServiceImpl : SuborderService {
     private fun updateStatus(suborder: Suborder, status: SuborderStatus) {
         if (suborder.id == null) throw NotFoundException(messages.get("exceptions.notfound.suborder"))
         updateStatus(suborder.id!!, status)
-        log.info { "Changed status of suborder ${suborder.id} to $status" }
     }
 }

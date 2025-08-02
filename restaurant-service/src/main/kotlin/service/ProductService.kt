@@ -9,7 +9,7 @@ import java.util.UUID
 
 interface ProductService {
 
-    fun createProduct(product: Product)
+    fun createProduct(product: Product): Product
     fun updateProduct(id: UUID, product: Product): Product
     fun deleteProduct(id: UUID)
     fun getProduct(id: UUID): Product

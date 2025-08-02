@@ -20,7 +20,7 @@ class GlobalExceptionHandler {
     fun processBadRequestException(exception: Exception): ResponseEntity<MessageDto> {
 
         log.warn { "Bad request exception thrown: ${ exception.message }" }
-        val status = BAD_REQUEST
+        val status = BAD_REQUEST.value()
 
         return when (exception.message) {
 
@@ -36,7 +36,7 @@ class GlobalExceptionHandler {
     fun processValidationException(exception: MethodArgumentNotValidException): ResponseEntity<MessageDto> {
 
         log.warn { "Validation exception thrown: ${ exception.message }" }
-        val status = INTERNAL_SERVER_ERROR
+        val status = INTERNAL_SERVER_ERROR.value()
         val errors = exception.bindingResult?.allErrors
 
         return ResponseEntity.status(status)
