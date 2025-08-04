@@ -21,14 +21,21 @@ class OrderListener() {
 
     @KafkaListener(topics = ["orders"])
     fun receiveOrderRecord(eventRecord: ConsumerRecord<String, OrderEvent>) {
-        log.info { "Received order event ${eventRecord.value()}" }
         val event = eventRecord.value()
+        val id = event.orderId
+
+        if (id == null) {
+            log.error { "Received order event of type ${event.type} with null id" }
+            return
+        }
+
+        log.info { "Received order event $event" }
 
         fun send(messageBodyCode: String) {
             email.send(
                 to = event.userEmail,
                 subject = messages.get("subjects.order"),
-                body = messages.get(messageBodyCode, event.orderId)
+                body = messages.get(messageBodyCode, id)
             )
         }
 

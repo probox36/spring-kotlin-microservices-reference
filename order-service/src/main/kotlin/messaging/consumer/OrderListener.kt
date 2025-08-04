@@ -1,20 +1,17 @@
 package com.buoyancy.order.messaging.consumer
 
-import com.buoyancy.common.exceptions.InternalErrorException
 import com.buoyancy.common.model.dto.messaging.events.OrderEvent
 import com.buoyancy.common.model.enums.OrderStatus
 import com.buoyancy.common.model.enums.SuborderStatus
-import com.buoyancy.common.model.enums.SuborderStatus.*
-import com.buoyancy.common.utils.get
+import com.buoyancy.common.model.enums.SuborderStatus.CANCELLED
 import com.buoyancy.order.repository.SuborderRepository
 import com.buoyancy.order.service.OrderService
 import com.buoyancy.order.service.impl.SuborderServiceImpl
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.context.MessageSource
 import org.springframework.kafka.annotation.KafkaListener
-import java.util.UUID
+import java.util.*
 
 class OrderListener {
 

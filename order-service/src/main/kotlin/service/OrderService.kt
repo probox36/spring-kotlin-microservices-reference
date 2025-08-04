@@ -8,7 +8,7 @@ import java.util.*
 interface OrderService {
 
     fun createOrder(order: Order): Order
-    fun updateStatus(id: UUID, status: OrderStatus)
+    fun updateStatus(id: UUID, status: OrderStatus): Order
     fun getStatus(id: UUID): OrderStatus
     fun cancelOrder(id: UUID)
     fun closeOrder(id: UUID)

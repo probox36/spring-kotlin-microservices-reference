@@ -25,12 +25,18 @@ class RestaurantListener {
     fun receiveRestaurantRecord(eventRecord: ConsumerRecord<String, RestaurantEvent>) {
         log.info { "Received restaurant event ${eventRecord.value()}" }
         val event = eventRecord.value()
+        val id = event.orderId
+
+        if (id == null) {
+            log.error { "Received restaurant event of type ${event.type} with null id" }
+            return
+        }
 
         fun send(bodyMessageCode: String) {
             email.send(
                 to = event.userEmail,
                 subject = messages.get("subjects.order"),
-                body = messages.get(bodyMessageCode, event.orderId)
+                body = messages.get(bodyMessageCode, id)
             )
         }
 

@@ -1,6 +1,6 @@
 package com.buoyancy.common.model.dto.messaging
 
-import com.buoyancy.common.model.interfaces.Message
+import com.buoyancy.common.model.interfaces.OrderDetails
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import org.jetbrains.annotations.NotNull
@@ -11,8 +11,8 @@ data class Notification (
     @NotNull override val orderId: UUID?,
     @NotNull override val userId: UUID?,
     @NotBlank val message: String
-): Message {
-    constructor(event: Message, message: String) : this(
+): OrderDetails {
+    constructor(event: OrderDetails, message: String) : this(
         userEmail = event.userEmail,
         orderId = event.orderId,
         userId = event.userId,

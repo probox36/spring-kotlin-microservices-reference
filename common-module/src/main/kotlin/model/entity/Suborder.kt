@@ -30,5 +30,6 @@ data class Suborder (
     )
     var items: MutableList<Product>,
 
+    @Enumerated(EnumType.STRING)
     var status: SuborderStatus
 )

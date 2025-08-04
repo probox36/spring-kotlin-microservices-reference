@@ -12,7 +12,7 @@ import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Component
 
 @Component
-class PaymentsListener() {
+class PaymentListener() {
 
     private val log = KotlinLogging.logger {}
 
@@ -23,26 +23,33 @@ class PaymentsListener() {
 
     @KafkaListener(topics = ["payments"])
     fun receivePaymentRecord(eventRecord: ConsumerRecord<String, PaymentEvent>) {
-        log.info { "Received payment event ${eventRecord.value()}" }
         val event = eventRecord.value()
+        val id = event.orderId
+
+        if (id == null) {
+            log.error { "Received payment event of type ${event.type} with null id" }
+            return
+        }
+
+        log.info { "Received payment event ${eventRecord.value()}" }
 
         fun send(messageBodyCode: String) {
             email.send(
                 to = event.userEmail,
                 subject = messages.get("subjects.payment"),
-                body = messages.get(messageBodyCode, event.orderId)
+                body = messages.get(messageBodyCode, id)
             )
         }
 
         when (event.type) {
             PaymentStatus.SUCCESS -> send("notifications.payment.success")
-            PaymentStatus.FAILED -> send(
+            PaymentStatus.EXPIRED -> send(
                 messages.get(
                     "notifications.payment.fail",
-                    event.orderId, event.errorReason
+                    id, event.errorReason ?: "not stated"
                 )
             )
-            PaymentStatus.PENDING -> {}
+            else -> {}
         }
     }
 }

@@ -3,5 +3,5 @@ package com.buoyancy.common.model.enums
 import com.buoyancy.common.model.interfaces.Status
 
 enum class PaymentStatus : Status {
-    PENDING, SUCCESS, FAILED
+    PENDING, SUCCESS, EXPIRED
 }

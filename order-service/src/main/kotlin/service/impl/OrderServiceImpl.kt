@@ -42,13 +42,17 @@ class OrderServiceImpl : OrderService {
         // TODO: Remove double conversion (DTO -> Entity -> DTO)
     }
 
-    override fun updateStatus(id: UUID, status: OrderStatus) {
-        log.info { "Updating status of order $id from ${getStatus(id)} to $status" }
+    override fun updateStatus(id: UUID, status: OrderStatus): Order {
         val order = getOrder(id)
-        order.status = status
-        repo.save(order)
-        kafka.sendOrderEvent(OrderEvent(order, status))
-        log.info { "Updated status of order $id from ${getStatus(id)} to $status" }
+        val updated = order
+        if (order.status != status) {
+            log.info { "Updating status of order $id from ${getStatus(id)} to $status" }
+            order.status = status
+            repo.save(order)
+            kafka.sendOrderEvent(OrderEvent(order, status))
+            log.info { "Updated status of order $id from ${getStatus(id)} to $status" }
+        }
+        return updated
     }
 
     override fun getStatus(id: UUID): OrderStatus {
