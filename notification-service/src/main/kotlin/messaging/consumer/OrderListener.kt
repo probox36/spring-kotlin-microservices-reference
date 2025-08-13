@@ -1,6 +1,8 @@
 package com.buoyancy.notification.messaging.consumer
 import com.buoyancy.common.model.dto.messaging.events.OrderEvent
+import com.buoyancy.common.model.enums.GroupIds
 import com.buoyancy.common.model.enums.OrderStatus
+import com.buoyancy.common.model.enums.TopicNames
 import com.buoyancy.notification.service.MailService
 import com.buoyancy.common.utils.get
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -19,29 +21,26 @@ class OrderListener() {
     @Autowired
     private lateinit var email: MailService
 
-    @KafkaListener(topics = ["orders"])
+    @KafkaListener(topics = [TopicNames.ORDER], groupId = GroupIds.NOTIFICATION_GROUP)
     fun receiveOrderRecord(eventRecord: ConsumerRecord<String, OrderEvent>) {
         val event = eventRecord.value()
         val id = event.orderId
-
-        if (id == null) {
-            log.error { "Received order event of type ${event.type} with null id" }
-            return
-        }
 
         log.info { "Received order event $event" }
 
         fun send(messageBodyCode: String) {
             email.send(
                 to = event.userEmail,
-                subject = messages.get("subjects.order"),
+                subject = messages.get("email.subjects.order"),
                 body = messages.get(messageBodyCode, id)
             )
         }
 
         when (event.type) {
             OrderStatus.CREATED -> send("notifications.order.created")
-            OrderStatus.CLOSED -> send("notifications.order.closed")
+            OrderStatus.READY -> send("notifications.order.ready")
+            OrderStatus.PREPARING -> send("notifications.order.preparing")
+            OrderStatus.POSTPONED -> send("notifications.order.postponed")
             OrderStatus.CANCELLED -> send("notifications.order.cancelled")
             else -> {}
         }

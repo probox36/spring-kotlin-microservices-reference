@@ -2,8 +2,10 @@ package com.buoyancy.order.messaging.consumer
 
 import com.buoyancy.common.model.dto.messaging.events.OrderEvent
 import com.buoyancy.common.model.dto.messaging.events.PaymentEvent
+import com.buoyancy.common.model.enums.GroupIds
 import com.buoyancy.common.model.enums.OrderStatus
 import com.buoyancy.common.model.enums.PaymentStatus
+import com.buoyancy.common.model.enums.TopicNames
 import com.buoyancy.order.messaging.producer.OrderTemplate
 import com.buoyancy.order.service.impl.OrderServiceImpl
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -22,22 +24,16 @@ class PaymentListener() {
     @Autowired
     private lateinit var kafka: OrderTemplate
 
-    @KafkaListener(topics = ["payments"])
+    @KafkaListener(topics = [TopicNames.PAYMENT], groupId = GroupIds.ORDER_GROUP)
     fun receivePaymentRecord(eventRecord: ConsumerRecord<String, PaymentEvent>) {
 
         log.info { "Received payment event ${eventRecord.value()}" }
         val event = eventRecord.value()
-        val id = event.orderId
-
-        if (id == null) {
-            log.error { "Received order event of type ${event.type} with null id" }
-            return
-        }
 
         when (event.type) {
             PaymentStatus.SUCCESS -> kafka.sendOrderEvent(OrderEvent(event, OrderStatus.PAID))
             PaymentStatus.EXPIRED -> {
-                service.cancelOrder(event.orderId!!)
+                service.cancelOrder(event.orderId)
                 kafka.sendOrderEvent(OrderEvent(event, OrderStatus.CANCELLED))
             }
             else -> {}

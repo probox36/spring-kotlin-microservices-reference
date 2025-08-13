@@ -1,6 +1,7 @@
 package com.buoyancy.order.messaging.producer
 
 import com.buoyancy.common.model.dto.messaging.events.SuborderEvent
+import com.buoyancy.common.model.enums.TopicNames
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.kafka.core.KafkaTemplate
@@ -13,7 +14,7 @@ class SuborderTemplate {
 
     @Autowired
     private lateinit var kafka: KafkaTemplate<String, SuborderEvent>
-    private final val topic = "suborders"
+    private final val topic = TopicNames.SUBORDER
 
     fun sendSuborderEvent(event: SuborderEvent) {
         log.info { "Sending ${event.type} suborder event for ${event.suborderId} suborder..." }

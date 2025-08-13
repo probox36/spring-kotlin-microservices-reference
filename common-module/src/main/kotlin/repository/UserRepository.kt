@@ -1,4 +1,4 @@
-package com.buoyancy.order.repository
+package com.buoyancy.common.repository
 
 import com.buoyancy.common.model.entity.User
 import org.springframework.data.jpa.repository.JpaRepository

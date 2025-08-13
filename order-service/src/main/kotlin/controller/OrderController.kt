@@ -19,48 +19,49 @@ import java.util.*
 class OrderController {
 
     @Autowired
-    lateinit var orderService: OrderService
+    private lateinit var service: OrderService
     @Autowired
-    lateinit var orderMapper: OrderMapper
+    private lateinit var mapper: OrderMapper
     @Autowired
     private lateinit var messages : MessageSource
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/create")
     fun createOrder(@Valid @RequestBody orderDto: OrderDto): OrderDto {
-        val order = orderMapper.toEntity(orderDto)
-        val createdOrderId = orderService.createOrder(order)
-        return orderMapper.toDto(createdOrderId)
+        val order = mapper.toEntity(orderDto)
+        val created = service.createOrder(order)
+        return mapper.toDto(created)
     }
 
     @GetMapping("/{id}/status")
     fun getOrderStatus(@PathVariable id: UUID): OrderStatus {
-        val orderStatus = orderService.getStatus(id)
+        val orderStatus = service.getStatus(id)
         return orderStatus
     }
 
     @PutMapping("/{id}/cancel")
     fun cancelOrder(@PathVariable id: UUID): MessageDto {
-        orderService.cancelOrder(id)
-        return MessageDto(200, messages.get("rest.order.status.cancelled"))
+        service.cancelOrder(id)
+        return MessageDto(200, messages.get("rest.response.orders.cancelled"))
     }
 
     @PutMapping("/{id}/close")
     fun closeOrder(@PathVariable id: UUID): MessageDto {
-        orderService.cancelOrder(id)
-        return MessageDto(200, messages.get("rest.order.status.closed"))
+        service.cancelOrder(id)
+        return MessageDto(200, messages.get("rest.response.orders.closed"))
     }
 
     @GetMapping("/{id}")
     fun getOrder(@PathVariable id: UUID): OrderDto {
-        val order = orderService.getOrder(id)
-        return orderMapper.toDto(order)
+        val order = service.getOrder(id)
+        return mapper.toDto(order)
     }
 
     @PostMapping("/{id}/update")
-    fun updateOrder(@Valid @RequestBody orderDto: OrderDto): ResourceDto {
-        val order = orderMapper.toEntity(orderDto)
-        order.id?.let { orderService.updateOrder(it, order) }
-        return ResourceDto(200, messages.get("rest.order.status.updated"), order)
+    fun updateOrder(@Valid @RequestBody orderDto: OrderDto): ResourceDto<OrderDto> {
+        val order = mapper.toEntity(orderDto)
+        order.id?.let { service.updateOrder(it, order) }
+        val message = messages.get("rest.response.orders.updated")
+        return ResourceDto(200, message, mapper.toDto(order))
     }
 }

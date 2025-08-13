@@ -1,0 +1,7 @@
+package com.buoyancy.common.model.enums
+
+object GroupIds {
+    const val ORDER_GROUP = "order-group"
+    const val NOTIFICATION_GROUP = "notification-group"
+    const val PAYMENT_GROUP = "payment-group"
+}

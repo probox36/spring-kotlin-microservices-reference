@@ -1,4 +1,4 @@
-package com.buoyancy.restaurant.repository
+package com.buoyancy.common.repository
 
 import com.buoyancy.common.model.entity.Order
 import com.buoyancy.common.model.entity.Restaurant
@@ -8,7 +8,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.repository.PagingAndSortingRepository
 import org.springframework.stereotype.Repository
-import java.util.*
+import java.util.UUID
 
 @Repository
 interface SuborderRepository : PagingAndSortingRepository<Suborder, UUID>, JpaRepository<Suborder, UUID> {

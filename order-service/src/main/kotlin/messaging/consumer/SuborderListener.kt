@@ -1,16 +1,20 @@
 package com.buoyancy.order.messaging.consumer
 
 import com.buoyancy.common.model.dto.messaging.events.SuborderEvent
+import com.buoyancy.common.model.enums.GroupIds
 import com.buoyancy.common.model.enums.OrderStatus
 import com.buoyancy.common.model.enums.SuborderStatus
-import com.buoyancy.order.repository.SuborderRepository
+import com.buoyancy.common.model.enums.TopicNames
+import com.buoyancy.common.repository.SuborderRepository
 import com.buoyancy.order.service.impl.OrderServiceImpl
 import com.buoyancy.order.service.impl.SuborderServiceImpl
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.kafka.annotation.KafkaListener
+import org.springframework.stereotype.Component
 
+@Component
 class SuborderListener {
 
     private val log = KotlinLogging.logger {}
@@ -22,33 +26,30 @@ class SuborderListener {
     @Autowired
     private lateinit var suborderRepo: SuborderRepository
 
-    @KafkaListener(topics = ["suborders"])
+    @KafkaListener(topics = [TopicNames.SUBORDER], groupId = GroupIds.ORDER_GROUP)
     fun receiveSuborderRecord(eventRecord: ConsumerRecord<String, SuborderEvent>) {
         log.info { "Received suborder event ${eventRecord.value()}" }
         val event = eventRecord.value()
-        val order = suborderService.getSuborder(event.suborderId).order
+        val suborder = suborderService.getSuborder(event.suborderId).order
 
-        if (order.id == null) {
-            log.error { "Received suborder event of type ${event.type} with null order id" }
-            return
-        }
+        requireNotNull(suborder.id) { "Received suborder event of type ${event.type} with null suborder id" }
 
         when (event.type) {
             SuborderStatus.PREPARING -> {
-                if (order.status == OrderStatus.CREATED) {
-                    orderService.updateStatus(order.id!!, OrderStatus.PREPARING)
+                if (suborder.status == OrderStatus.CREATED) {
+                    orderService.updateStatus(suborder.id!!, OrderStatus.PREPARING)
                 }
             }
             SuborderStatus.POSTPONED -> {
-                if (order.status in arrayOf(OrderStatus.PREPARING, OrderStatus.CREATED)) {
-                    orderService.updateStatus(order.id!!, OrderStatus.POSTPONED)
+                if (suborder.status in arrayOf(OrderStatus.PREPARING, OrderStatus.CREATED)) {
+                    orderService.updateStatus(suborder.id!!, OrderStatus.POSTPONED)
                 }
             }
             SuborderStatus.READY -> {
-                val suborders = suborderRepo.findByOrder(order)
+                val suborders = suborderRepo.findByOrder(suborder)
                 if (suborders.all { it.status == SuborderStatus.READY }) {
-                    log.info { "All suborders of order ${order.id} are ready. Updating parent order status" }
-                    orderService.updateStatus(order.id!!, OrderStatus.READY)
+                    log.info { "All suborders of order ${suborder.id} are ready. Updating parent order status" }
+                    orderService.updateStatus(suborder.id!!, OrderStatus.READY)
                 }
             }
             else -> {}

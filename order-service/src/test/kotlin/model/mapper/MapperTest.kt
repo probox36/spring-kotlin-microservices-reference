@@ -16,6 +16,10 @@ import com.buoyancy.common.model.mapper.OrderMapper
 import com.buoyancy.common.model.mapper.ProductMapper
 import com.buoyancy.common.model.mapper.SuborderMapper
 import com.buoyancy.common.model.mapper.UserMapper
+import com.buoyancy.common.repository.OrderRepository
+import com.buoyancy.common.repository.ProductRepository
+import com.buoyancy.common.repository.RestaurantRepository
+import com.buoyancy.common.repository.UserRepository
 import com.buoyancy.order.OrderServiceApplication
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -24,6 +28,7 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.test.context.bean.override.mockito.MockitoBean
@@ -43,11 +48,13 @@ class MapperTest {
     lateinit var userMapper: UserMapper
 
     @MockitoBean
-    lateinit var userRepository: JpaRepository<User, UUID>
+    lateinit var userRepository: UserRepository
     @MockitoBean
-    lateinit var productRepository: JpaRepository<Product, UUID>
+    lateinit var productRepository: ProductRepository
     @MockitoBean
-    lateinit var restaurantRepository: JpaRepository<Restaurant, UUID>
+    lateinit var restaurantRepository: RestaurantRepository
+    @MockitoBean
+    lateinit var orderRepo: OrderRepository
 
     private val restaurant = Restaurant(UUID.randomUUID(), "Pickles", "Main rd, 123",
         "123-123-1234", "pickles@example.com", CuisineType.JAPANESE, true)
@@ -96,7 +103,7 @@ class MapperTest {
     @Test
     fun `should map OrderDto to Order`() {
         // Given
-        val orderDto = OrderDto(UUID.randomUUID(), userDto.id, LocalDateTime.now(), OrderStatus.READY, productIds)
+        val orderDto = OrderDto(UUID.randomUUID(), userDto.id!!, LocalDateTime.now(), OrderStatus.READY, productIds)
         whenever(userRepository.getReferenceById(any<UUID>())).thenReturn(user)
         whenever(productRepository.getReferenceById(productIds[0])).thenReturn(product1)
         whenever(productRepository.getReferenceById(productIds[1])).thenReturn(product2)

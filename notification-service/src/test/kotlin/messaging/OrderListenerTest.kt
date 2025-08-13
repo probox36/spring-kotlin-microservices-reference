@@ -2,6 +2,7 @@ package messaging
 
 import com.buoyancy.common.model.dto.messaging.events.OrderEvent
 import com.buoyancy.common.model.enums.OrderStatus
+import com.buoyancy.common.model.enums.TopicNames
 import com.buoyancy.notification.NotificationServiceApplication
 import com.buoyancy.notification.messaging.config.LoggingErrorHandler
 import com.buoyancy.notification.messaging.consumer.OrderListener
@@ -26,7 +27,7 @@ import java.util.concurrent.TimeUnit
 @SpringBootTest(classes = [NotificationServiceApplication::class])
 @ActiveProfiles("test")
 @DirtiesContext
-@EmbeddedKafka(partitions = 1, topics = ["orders"],
+@EmbeddedKafka(partitions = 1, topics = [TopicNames.ORDER],
     brokerProperties = [ "listeners=PLAINTEXT://localhost:9092", "port=9092" ]
 )
 class OrderListenerIntegrationTest {
@@ -55,7 +56,7 @@ class OrderListenerIntegrationTest {
         val event = OrderEvent(OrderStatus.CREATED, orderId, userId, userEmail)
 
         whenever(messages.getMessage("notifications.order.created", arrayOf(orderId), Locale.ENGLISH)).thenReturn(body)
-        whenever(messages.getMessage("subjects.order", null, Locale.ENGLISH)).thenReturn(subject)
+        whenever(messages.getMessage("email.subjects.order", null, Locale.ENGLISH)).thenReturn(subject)
 
         // When
         kafkaTemplate.send("orders", event)
@@ -69,7 +70,7 @@ class OrderListenerIntegrationTest {
                 })
         }
         verify(messages, timeout(3000)).getMessage("notifications.order.created", arrayOf(orderId), Locale.ENGLISH)
-        verify(messages, timeout(3000)).getMessage("subjects.order", null, Locale.ENGLISH)
+        verify(messages, timeout(3000)).getMessage("email.subjects.order", null, Locale.ENGLISH)
         verify(mailService, timeout(3000)).send(userEmail, subject, body)
     }
 
@@ -81,10 +82,10 @@ class OrderListenerIntegrationTest {
         val userEmail = "test@example.com"
         val subject = "Order Subject 2"
         val body = "Order Created Body 2"
-        val event = OrderEvent(OrderStatus.CLOSED, orderId, userId, userEmail)
+        val event = OrderEvent(OrderStatus.READY, orderId, userId, userEmail)
 
-        whenever(messages.getMessage("notifications.order.closed", arrayOf(orderId), Locale.ENGLISH)).thenReturn(body)
-        whenever(messages.getMessage("subjects.order", null, Locale.ENGLISH)).thenReturn(subject)
+        whenever(messages.getMessage("notifications.order.ready", arrayOf(orderId), Locale.ENGLISH)).thenReturn(body)
+        whenever(messages.getMessage("email.subjects.order", null, Locale.ENGLISH)).thenReturn(subject)
 
         // When
         kafkaTemplate.send("orders", event)
@@ -97,8 +98,8 @@ class OrderListenerIntegrationTest {
                     record.value()?.let { order -> order.orderId == orderId } ?: false
                 })
         }
-        verify(messages, timeout(3000)).getMessage("notifications.order.closed", arrayOf(orderId), Locale.ENGLISH)
-        verify(messages, timeout(3000)).getMessage("subjects.order", null, Locale.ENGLISH)
+        verify(messages, timeout(3000)).getMessage("notifications.order.ready", arrayOf(orderId), Locale.ENGLISH)
+        verify(messages, timeout(3000)).getMessage("email.subjects.order", null, Locale.ENGLISH)
         verify(mailService, timeout(3000)).send(userEmail, subject, body)
     }
 
@@ -113,7 +114,7 @@ class OrderListenerIntegrationTest {
         val body = "Order Created Body 2"
 
         whenever(messages.getMessage("notifications.order.cancelled", arrayOf(orderId), Locale.ENGLISH)).thenReturn(body)
-        whenever(messages.getMessage("subjects.order", null, Locale.ENGLISH)).thenReturn(subject)
+        whenever(messages.getMessage("email.subjects.order", null, Locale.ENGLISH)).thenReturn(subject)
 
         // When
         kafkaTemplate.send("orders", event)
@@ -127,7 +128,7 @@ class OrderListenerIntegrationTest {
                 })
         }
         verify(messages, timeout(3000)).getMessage("notifications.order.cancelled", arrayOf(orderId), Locale.ENGLISH)
-        verify(messages, timeout(3000)).getMessage("subjects.order", null, Locale.ENGLISH)
+        verify(messages, timeout(3000)).getMessage("email.subjects.order", null, Locale.ENGLISH)
         verify(mailService, timeout(3000)).send(userEmail, subject, body)
     }
 

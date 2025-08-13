@@ -6,8 +6,7 @@ import org.jetbrains.annotations.NotNull
 import java.util.*
 
 data class UserDto (
-
-    @NotNull var id: UUID,
+    var id: UUID? = null,
     @NotBlank var name: String,
     @NotBlank var lastName: String,
     @Email var email: String

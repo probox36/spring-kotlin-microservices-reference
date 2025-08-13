@@ -16,6 +16,7 @@ abstract class OrderMapper {
 
     @Autowired
     protected lateinit var userRepo: UserRepository
+
     @Autowired
     protected lateinit var productRepo: ProductRepository
 

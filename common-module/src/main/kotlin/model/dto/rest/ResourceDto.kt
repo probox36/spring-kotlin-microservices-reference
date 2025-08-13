@@ -1,7 +1,7 @@
 package com.buoyancy.common.model.dto.rest
 
-data class ResourceDto (
+data class ResourceDto<T> (
     val statusCode: Int,
     val message: String,
-    val entity: Any
+    val entity: T
 )

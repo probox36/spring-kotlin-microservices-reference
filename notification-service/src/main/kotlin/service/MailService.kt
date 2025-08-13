@@ -17,6 +17,7 @@ class MailService {
     fun send(to: String, subject: String, body: String) {
         log.info { "Sending email with subject $subject to $to" }
         val message = SimpleMailMessage()
+        // TODO: Убрать
         message.setTo(to)
         message.subject = subject
         message.text = body

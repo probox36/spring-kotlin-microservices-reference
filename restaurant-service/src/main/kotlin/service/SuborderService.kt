@@ -8,6 +8,7 @@ import java.util.UUID
 
 interface SuborderService {
 
+    fun getSuborders(pageable: Pageable): Page<Suborder>
     fun getSubordersByRestaurant(restaurantId: UUID, pageable: Pageable): Page<Suborder>
     fun getSubordersByRestaurant(restaurant: Restaurant, pageable: Pageable): Page<Suborder>
     fun markSuborderAsPreparing(id: UUID)

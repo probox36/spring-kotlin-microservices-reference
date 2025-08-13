@@ -1,4 +1,4 @@
-package com.buoyancy.restaurant.repository
+package com.buoyancy.common.repository
 
 import com.buoyancy.common.model.entity.Product
 import com.buoyancy.common.model.entity.Restaurant

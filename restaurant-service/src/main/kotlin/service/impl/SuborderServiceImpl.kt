@@ -6,17 +6,20 @@ import com.buoyancy.common.model.entity.Restaurant
 import com.buoyancy.common.model.entity.Suborder
 import com.buoyancy.common.model.enums.SuborderStatus
 import com.buoyancy.common.model.enums.SuborderStatus.*
+import com.buoyancy.common.repository.SuborderRepository
 import com.buoyancy.common.utils.get
 import com.buoyancy.restaurant.messaging.producer.SuborderTemplate
-import com.buoyancy.restaurant.repository.SuborderRepository
 import com.buoyancy.restaurant.service.SuborderService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.MessageSource
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
-import java.util.UUID
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import java.util.*
 
+@Service
 class SuborderServiceImpl : SuborderService {
 
     private val log = KotlinLogging.logger {}
@@ -26,6 +29,10 @@ class SuborderServiceImpl : SuborderService {
     private lateinit var kafka: SuborderTemplate
     @Autowired
     private lateinit var messages : MessageSource
+
+    override fun getSuborders(pageable: Pageable): Page<Suborder> {
+        return repo.findAll(pageable)
+    }
 
     override fun getSubordersByRestaurant(restaurantId: UUID, pageable: Pageable): Page<Suborder> {
         return repo.findByRestaurantId(restaurantId, pageable)
@@ -65,11 +72,12 @@ class SuborderServiceImpl : SuborderService {
         }
     }
 
+    @Transactional
     private fun updateStatus(id: UUID, status: SuborderStatus) {
         val suborder = getSuborder(id)
         suborder.status = status
         repo.save(suborder)
-        kafka.sendSuborderEvent(SuborderEvent(status, id))
+        kafka.sendSuborderEvent(SuborderEvent(status, suborder.id!!))
     }
 
     private fun updateStatus(suborder: Suborder, status: SuborderStatus) {

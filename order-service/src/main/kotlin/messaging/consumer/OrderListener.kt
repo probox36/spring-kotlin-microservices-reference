@@ -1,18 +1,23 @@
 package com.buoyancy.order.messaging.consumer
 
 import com.buoyancy.common.model.dto.messaging.events.OrderEvent
+import com.buoyancy.common.model.enums.GroupIds
 import com.buoyancy.common.model.enums.OrderStatus
 import com.buoyancy.common.model.enums.SuborderStatus
 import com.buoyancy.common.model.enums.SuborderStatus.CANCELLED
-import com.buoyancy.order.repository.SuborderRepository
+import com.buoyancy.common.model.enums.TopicNames
+import com.buoyancy.common.repository.SuborderRepository
 import com.buoyancy.order.service.OrderService
 import com.buoyancy.order.service.impl.SuborderServiceImpl
 import io.github.oshai.kotlinlogging.KotlinLogging
+import jakarta.transaction.Transactional
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.kafka.annotation.KafkaListener
+import org.springframework.stereotype.Component
 import java.util.*
 
+@Component
 class OrderListener {
 
     private val log = KotlinLogging.logger {}
@@ -24,16 +29,12 @@ class OrderListener {
     @Autowired
     private lateinit var orderService: OrderService
 
-    @KafkaListener(topics = ["orders"])
+    @KafkaListener(topics = [TopicNames.ORDER], groupId = GroupIds.ORDER_GROUP)
+    @Transactional
     fun receiveOrderRecord(eventRecord: ConsumerRecord<String, OrderEvent>) {
         log.info { "Received order event ${eventRecord.value()}" }
         val event = eventRecord.value()
         val id = event.orderId
-
-        if (id == null) {
-            log.error { "Received order event of type ${event.type} with null id" }
-            return
-        }
 
         when (event.type) {
             OrderStatus.CREATED -> {
@@ -49,12 +50,9 @@ class OrderListener {
     private fun updateChildSuborders(orderId: UUID, status: SuborderStatus) {
         val suborders = suborderRepository.findByOrderId(orderId)
         log.info { "Updating status of ${suborders.size} suborders of order $orderId to $status" }
-        suborders.forEach { suborder ->
-            if (suborder.id != null) {
-                suborderService.updateStatus(suborder.id!!, status)
-            } else {
-                log.error { "Order $orderId has a suborder with null id: $suborder" }
-            }
+        suborders.forEach {
+            it.id?.let { suborderId -> suborderService.updateStatus(suborderId, status) }
+                ?: log.error { "Order $orderId has a suborder with null id: $it" }
         }
     }
 }

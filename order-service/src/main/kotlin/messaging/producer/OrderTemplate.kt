@@ -1,6 +1,7 @@
 package com.buoyancy.order.messaging.producer
 
 import com.buoyancy.common.model.dto.messaging.events.OrderEvent
+import com.buoyancy.common.model.enums.TopicNames
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.kafka.core.KafkaTemplate
@@ -13,7 +14,7 @@ class OrderTemplate {
 
     @Autowired
     private lateinit var kafka: KafkaTemplate<String, OrderEvent>
-    private final val topic = "orders"
+    private final val topic = TopicNames.ORDER
 
     fun sendOrderEvent(event: OrderEvent) {
         log.info { "Sending ${event.type} order event for ${event.orderId} order..." }

@@ -1,10 +1,13 @@
 package com.buoyancy.payment.controller
 
 import com.buoyancy.common.model.dto.rest.MessageDto
+import com.buoyancy.common.model.dto.rest.PaymentDto
 import com.buoyancy.common.model.dto.rest.ResourceDto
 import com.buoyancy.common.model.entity.Payment
 import com.buoyancy.common.model.enums.PaymentStatus
+import com.buoyancy.common.model.mapper.PaymentMapper
 import com.buoyancy.payment.service.impl.MockPaymentServiceImpl
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
@@ -13,41 +16,51 @@ import java.util.*
 
 @RestController
 @RequestMapping("/payments")
-class PaymentController(
-    private val service: MockPaymentServiceImpl
-) {
+class PaymentController {
+
+    @Autowired
+    private lateinit var service: MockPaymentServiceImpl
+    @Autowired
+    private lateinit var mapper: PaymentMapper
 
     @GetMapping
-    fun getPayments(pageable: Pageable): Page<Payment> {
-        return service.getPayments(pageable)
+    fun getPayments(pageable: Pageable): Page<PaymentDto> {
+        return service.getPayments(pageable).map { mapper.toDto(it) }
     }
 
     @GetMapping("/{id}")
-    fun getPayment(@PathVariable id: UUID): Payment {
-        return service.getPayment(id)
+    fun getPayment(@PathVariable id: UUID): PaymentDto {
+        return mapper.toDto(service.getPayment(id))
     }
 
     @GetMapping("/orders/{orderId}")
-    fun getPaymentByOrderId(@PathVariable orderId: UUID): Payment {
-        return service.getPaymentByOrderId(orderId)
+    fun getPaymentByOrderId(@PathVariable orderId: UUID): PaymentDto {
+        return mapper.toDto(service.getPaymentByOrderId(orderId))
     }
 
     @PostMapping("create")
     @ResponseStatus(HttpStatus.CREATED)
-    fun createPayment(@RequestBody payment: Payment): ResourceDto {
-        return ResourceDto(200, "Payment created", service.createPayment(payment))
+    fun createPayment(@RequestBody payment: Payment): ResourceDto<PaymentDto> {
+        val created = service.createPayment(payment)
+        return ResourceDto(200, "Payment created", mapper.toDto(created))
     }
 
-    @PutMapping("/{id}/pay")
-    fun pay(@PathVariable id: UUID, @RequestParam value: Long): MessageDto {
-        service.pay(id, value)
+    @PutMapping("/{paymentId}/pay-by-payment-id")
+    fun payByPaymentId(@PathVariable paymentId: UUID, @RequestParam value: Long): MessageDto {
+        service.payByPaymentId(paymentId, value)
+        return MessageDto(200, "Payment successful")
+    }
+
+    @PutMapping("/{orderId}/pay")
+    fun pay(@PathVariable orderId: UUID, @RequestParam value: Long): MessageDto {
+        service.pay(orderId, value)
         return MessageDto(200, "Payment successful")
     }
 
     @PatchMapping("/{id}/status")
-    fun updateStatus(@PathVariable id: UUID, @RequestParam status: PaymentStatus): ResourceDto {
-        val updatedPayment = service.updateStatus(id, status)
-        return ResourceDto(200, "Payment status updated", updatedPayment)
+    fun updateStatus(@PathVariable id: UUID, @RequestParam status: PaymentStatus): ResourceDto<PaymentDto> {
+        val updated = service.updateStatus(id, status)
+        return ResourceDto(200, "Payment status updated", mapper.toDto(updated))
     }
 
     @DeleteMapping("/{id}/delete")

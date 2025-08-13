@@ -1,11 +1,11 @@
 server:
-  port: 8083
+  port: 8084
 
 spring:
   config:
     import: classpath:application-common.yaml
   application:
-    name: foodtech-notification-service
+    name: foodtech-restaurant-service
   kafka:
     consumer:
-      group-id: notification-group
+      group-id: restaurant-group

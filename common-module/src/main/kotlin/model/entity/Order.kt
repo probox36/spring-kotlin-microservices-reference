@@ -24,7 +24,7 @@ data class Order(
     @Enumerated(EnumType.STRING)
     var status: OrderStatus,
 
-    @OneToMany(targetEntity = Product::class)
+    @ManyToMany(targetEntity = Product::class)
     @JoinTable(name="orders_items",
         joinColumns = [JoinColumn(name="order_id", referencedColumnName="id")],
         inverseJoinColumns = [JoinColumn(name="product_id", referencedColumnName="id")]

@@ -1,9 +1,11 @@
 package com.buoyancy.notification.messaging.consumer
 
 import com.buoyancy.common.model.dto.messaging.events.PaymentEvent
+import com.buoyancy.common.model.enums.GroupIds
 import com.buoyancy.common.model.enums.PaymentStatus
+import com.buoyancy.common.model.enums.TopicNames
 import com.buoyancy.common.utils.get
-import com.buoyancy.notification.service.MailService
+import com.buoyancy.notification.service.NotificationService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.beans.factory.annotation.Autowired
@@ -19,34 +21,28 @@ class PaymentListener() {
     @Autowired
     private lateinit var messages : MessageSource
     @Autowired
-    private lateinit var email: MailService
+    private lateinit var service: NotificationService
 
-    @KafkaListener(topics = ["payments"])
+    @KafkaListener(topics = [TopicNames.PAYMENT], groupId = GroupIds.NOTIFICATION_GROUP)
     fun receivePaymentRecord(eventRecord: ConsumerRecord<String, PaymentEvent>) {
         val event = eventRecord.value()
-        val id = event.orderId
-
-        if (id == null) {
-            log.error { "Received payment event of type ${event.type} with null id" }
-            return
-        }
+        val orderId = event.orderId
 
         log.info { "Received payment event ${eventRecord.value()}" }
 
-        fun send(messageBodyCode: String) {
-            email.send(
-                to = event.userEmail,
-                subject = messages.get("subjects.payment"),
-                body = messages.get(messageBodyCode, id)
-            )
-        }
-
         when (event.type) {
-            PaymentStatus.SUCCESS -> send("notifications.payment.success")
-            PaymentStatus.EXPIRED -> send(
+            PaymentStatus.SUCCESS -> {
+                service.notifyUser(
+                    event,
+                    messages.get("notifications.payment.success", orderId)
+                )
+                service.notifyRestaurants(orderId)
+            }
+            PaymentStatus.EXPIRED -> service.notifyUser(
+                event,
                 messages.get(
                     "notifications.payment.fail",
-                    id, event.errorReason ?: "not stated"
+                    orderId, event.errorReason ?: "not stated"
                 )
             )
             else -> {}

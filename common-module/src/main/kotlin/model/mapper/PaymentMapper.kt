@@ -3,12 +3,12 @@ package com.buoyancy.common.model.mapper
 import com.buoyancy.common.model.dto.rest.PaymentDto
 import com.buoyancy.common.model.entity.Order
 import com.buoyancy.common.model.entity.Payment
+import com.buoyancy.common.repository.OrderRepository
 import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.mapstruct.Mapping
 import org.mapstruct.MappingConstants
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.jpa.repository.JpaRepository
 import java.util.*
 
 @Mapper(
@@ -18,7 +18,7 @@ import java.util.*
 abstract class PaymentMapper {
 
     @Autowired
-    protected lateinit var orderRepository: JpaRepository<Order, UUID>
+    protected lateinit var orderRepository: OrderRepository
 
     @Mapping(target = "orderId", expression = "java(payment.getOrder().getId())")
     abstract fun toDto(payment: Payment): PaymentDto

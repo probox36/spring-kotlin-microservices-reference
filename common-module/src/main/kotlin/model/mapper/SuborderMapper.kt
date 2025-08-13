@@ -5,23 +5,25 @@ import com.buoyancy.common.model.entity.Order
 import com.buoyancy.common.model.entity.Product
 import com.buoyancy.common.model.entity.Restaurant
 import com.buoyancy.common.model.entity.Suborder
+import com.buoyancy.common.repository.OrderRepository
+import com.buoyancy.common.repository.ProductRepository
+import com.buoyancy.common.repository.RestaurantRepository
 import org.mapstruct.Mapper
 import org.mapstruct.Mapping
-import org.springframework.data.jpa.repository.JpaRepository
-import java.util.*
 import org.springframework.beans.factory.annotation.Autowired
+import java.util.*
 
 @Mapper(componentModel = "spring")
 abstract class SuborderMapper {
 
     @Autowired
-    protected lateinit var orderRepository: JpaRepository<Order, UUID>
+    protected lateinit var orderRepo: OrderRepository
 
     @Autowired
-    protected lateinit var productRepository: JpaRepository<Product, UUID>
+    protected lateinit var productRepo: ProductRepository
 
     @Autowired
-    protected lateinit var restaurantRepository: JpaRepository<Restaurant, UUID>
+    protected lateinit var restaurantRepo: RestaurantRepository
 
     @Mapping(target = "order", expression = "java(getOrderProxy(dto.getOrderId()))")
     @Mapping(target = "restaurant", expression = "java(getRestaurantProxy(dto.getRestaurantId()))")
@@ -34,15 +36,15 @@ abstract class SuborderMapper {
     abstract fun toDto(suborder: Suborder): SuborderDto
 
     protected fun getOrderProxy(orderId: UUID): Order {
-        return orderRepository.getReferenceById(orderId)
+        return orderRepo.getReferenceById(orderId)
     }
 
     protected fun getRestaurantProxy(orderId: UUID): Restaurant {
-        return restaurantRepository.getReferenceById(orderId)
+        return restaurantRepo.getReferenceById(orderId)
     }
 
     protected fun mapIdsToProducts(productIds: List<UUID>): List<Product> {
-        return productIds.map { productRepository.getReferenceById(it) }
+        return productIds.map { productRepo.getReferenceById(it) }
     }
 
     protected fun mapProductsToIds(productIds: List<Product>): List<UUID?> {

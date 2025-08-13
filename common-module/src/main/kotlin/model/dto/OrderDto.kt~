@@ -7,7 +7,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 data class OrderDto(
-    var id: UUID? = null,
+    var id: UUID,
     @NotNull var userId: UUID,
     @NotNull var createdAt: LocalDateTime,
     var status: OrderStatus = OrderStatus.CREATED,

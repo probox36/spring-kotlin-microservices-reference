@@ -23,9 +23,9 @@ data class Suborder (
     @JoinColumn(name = "restaurant_id")
     var restaurant: Restaurant,
 
-    @OneToMany(targetEntity = Product::class)
-    @JoinTable(name="suborders_products",
-        joinColumns = [JoinColumn(name="order_id", referencedColumnName="id")],
+    @ManyToMany(targetEntity = Product::class)
+    @JoinTable(name="suborders_items",
+        joinColumns = [JoinColumn(name="suborder_id", referencedColumnName="id")],
         inverseJoinColumns = [JoinColumn(name="product_id", referencedColumnName="id")],
     )
     var items: MutableList<Product>,

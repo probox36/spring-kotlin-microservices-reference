@@ -28,31 +28,35 @@ class RestaurantController {
     @Autowired
     private lateinit var messages : MessageSource
 
-    private val updatedMessage = messages.get("rest.response.resource.updated")
-    private val createdMessage = messages.get("rest.response.resource.created")
+    private val updatedMessage by lazy { messages.get("rest.response.resource.updated") }
+    private val createdMessage by lazy { messages.get("rest.response.resource.created") }
 
     @PostMapping("create")
     @ResponseStatus(HttpStatus.CREATED)
-    fun createRestaurant(restaurantDto: RestaurantDto): ResourceDto {
-        val restaurant = mapper.toEntity(restaurantDto)
-        return ResourceDto(201, createdMessage, service.createRestaurant(restaurant))
+    fun createRestaurant(restaurantDto: RestaurantDto): ResourceDto<RestaurantDto> {
+        val created = service.createRestaurant(mapper.toEntity(restaurantDto))
+        val entity = mapper.toDto(created)
+        return ResourceDto(201, createdMessage, entity)
     }
 
     @GetMapping()
-    fun getRestaurants(pageable: Pageable): Page<Restaurant> {
-        return service.getRestaurants(pageable)
+    fun getRestaurants(pageable: Pageable): Page<RestaurantDto> {
+        return service.getRestaurants(pageable).map { mapper.toDto(it) }
     }
 
     @GetMapping("/{id}")
-    fun getRestaurant(@PathVariable id: UUID): Restaurant {
-        return service.getRestaurant(id)
+    fun getRestaurant(@PathVariable id: UUID): RestaurantDto {
+        return mapper.toDto(service.getRestaurant(id))
     }
 
     @PostMapping("/{id}/update")
-    fun updateRestaurant(@PathVariable id: UUID, @Valid @RequestBody restaurantDto: RestaurantDto): ResourceDto {
+    fun updateRestaurant(
+        @PathVariable id: UUID,
+        @Valid @RequestBody restaurantDto: RestaurantDto
+    ): ResourceDto<RestaurantDto> {
         val restaurant = mapper.toEntity(restaurantDto)
         service.updateRestaurant(id, restaurant)
-        return ResourceDto(200, updatedMessage, restaurant)
+        return ResourceDto(200, updatedMessage, mapper.toDto(restaurant))
     }
 
     @DeleteMapping("/{id}/delete")
@@ -63,23 +67,26 @@ class RestaurantController {
     }
 
     @PostMapping("/{id}/updateName")
-    fun updateName(@PathVariable id: UUID, @RequestBody name: String): ResourceDto {
-        service.updateName(id, name)
-        return ResourceDto(200, updatedMessage, name)
+    fun updateName(@PathVariable id: UUID, @RequestBody name: String): ResourceDto<RestaurantDto> {
+        val entity = service.updateName(id, name)
+        return ResourceDto(200, updatedMessage, mapper.toDto(entity))
     }
 
     @PostMapping("/{id}/updateAddress")
-    fun updateAddress(@PathVariable id: UUID, @RequestBody address: String): ResourceDto {
-        return ResourceDto(200, updatedMessage, service.updateAddress(id, address))
+    fun updateAddress(@PathVariable id: UUID, @RequestBody address: String): ResourceDto<RestaurantDto> {
+        val entity = service.updateAddress(id, address)
+        return ResourceDto(200, updatedMessage, mapper.toDto(entity))
     }
 
     @PostMapping("/{id}/updatePhone")
-    fun updatePhone(@PathVariable id: UUID, @RequestBody phone: String): ResourceDto {
-        return ResourceDto(200, updatedMessage, service.updatePhone(id, phone))
+    fun updatePhone(@PathVariable id: UUID, @RequestBody phone: String): ResourceDto<RestaurantDto> {
+        val entity = service.updatePhone(id, phone)
+        return ResourceDto(200, updatedMessage, mapper.toDto(entity))
     }
 
     @PostMapping("/{id}/updateEmail")
-    fun updateEmail(@PathVariable id: UUID, @RequestBody dto: EmailUpdateDto): ResourceDto {
-        return ResourceDto(200, updatedMessage, service.updateEmail(id, dto.email))
+    fun updateEmail(@PathVariable id: UUID, @RequestBody dto: EmailUpdateDto): ResourceDto<RestaurantDto> {
+        val entity = service.updateEmail(id, dto.email)
+        return ResourceDto(200, updatedMessage, mapper.toDto(entity))
     }
 }

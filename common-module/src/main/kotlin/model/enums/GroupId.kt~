@@ -1,0 +1,4 @@
+package com.buoyancy.common.model.enums
+
+object GroupId {
+}

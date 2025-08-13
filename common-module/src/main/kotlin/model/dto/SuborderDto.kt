@@ -6,8 +6,7 @@ import jakarta.validation.constraints.NotNull
 import java.util.*
 
 data class SuborderDto(
-
-    @NotNull var id: UUID,
+    var id: UUID? = null,
     @NotNull var orderId: UUID,
     @NotNull var restaurantId: UUID,
     @NotEmpty var items: List<UUID>,

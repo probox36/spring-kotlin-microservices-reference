@@ -3,16 +3,19 @@ package com.buoyancy.restaurant.service.impl
 import com.buoyancy.common.exceptions.ConflictException
 import com.buoyancy.common.exceptions.NotFoundException
 import com.buoyancy.common.model.entity.Product
+import com.buoyancy.common.repository.ProductRepository
 import com.buoyancy.common.utils.get
-import com.buoyancy.restaurant.repository.ProductRepository
 import com.buoyancy.restaurant.service.ProductService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.MessageSource
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.util.*
 
+@Service
 class ProductServiceImpl : ProductService {
 
     private val log = KotlinLogging.logger {}
@@ -21,6 +24,7 @@ class ProductServiceImpl : ProductService {
     @Autowired
     private lateinit var messages: MessageSource
 
+    @Transactional
     override fun createProduct(product: Product): Product {
         if (product.id != null && repo.existsById(product.id!!)) {
             val conflictMessage = messages.get("exceptions.conflict.product", product.id!!)

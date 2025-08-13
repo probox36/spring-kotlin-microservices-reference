@@ -6,8 +6,7 @@ import org.jetbrains.annotations.NotNull
 import java.util.*
 
 data class RestaurantDto (
-
-    @NotNull val id: UUID,
+    val id: UUID? = null,
     @NotBlank val name: String,
     @NotBlank val address: String,
     @NotBlank val phoneNumber: String,
