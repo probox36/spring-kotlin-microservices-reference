@@ -1,7 +1,6 @@
 package com.buoyancy.notification.service
 
 import com.buoyancy.common.model.entity.Product
-import com.buoyancy.common.model.enums.CacheNames
 import com.buoyancy.common.model.interfaces.OrderDetails
 import com.buoyancy.common.repository.SuborderRepository
 import com.buoyancy.common.utils.get
@@ -22,8 +21,9 @@ class NotificationService {
     @Autowired
     private lateinit var email: MailService
 
-    @Cacheable(CacheNames.SUBORDERS)
+    @Cacheable("suborders")
     private fun getSubordersByOrderId(orderId: UUID) = repo.findByOrderId(orderId)
+    @Cacheable("products")
     private fun getItemListString(items: List<Product>): String = items.joinToString(",\n") { it.name }
 
     @Transactional

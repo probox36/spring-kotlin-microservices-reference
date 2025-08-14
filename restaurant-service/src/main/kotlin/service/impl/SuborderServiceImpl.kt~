@@ -14,10 +14,8 @@ import com.buoyancy.restaurant.messaging.producer.SuborderTemplate
 import com.buoyancy.restaurant.service.SuborderService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.CachePut
 import org.springframework.cache.annotation.Cacheable
-import org.springframework.cache.annotation.Caching
 import org.springframework.context.MessageSource
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -106,10 +104,7 @@ class SuborderServiceImpl : SuborderService {
         }
     }
 
-    @Caching(
-        put = [CachePut(CacheNames.SUBORDERS, "#id")],
-        evict = [CacheEvict(CacheNames.SUBORDER_COLLECTION, allEntries = true)]
-    )
+    @CachePut(CacheNames.SUBORDERS, "#id")
     @Transactional
     private fun updateStatus(id: UUID, status: SuborderStatus) {
         val suborder = getSuborder(id)

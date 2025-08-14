@@ -109,10 +109,7 @@ class MockPaymentServiceImpl: MockPaymentService {
         }
     }
 
-    @Caching(
-        put = [CachePut(CacheNames.PAYMENTS, "#paymentId")],
-        evict = [CacheEvict(CacheNames.PAYMENT_COLLECTION, allEntries = true)]
-    )
+    @CachePut(CacheNames.PAYMENTS, "#paymentId")
     @Transactional
     override fun updateStatus(paymentId: UUID, status: PaymentStatus, errorReason: String?): Payment {
         val payment = getPayment(paymentId)

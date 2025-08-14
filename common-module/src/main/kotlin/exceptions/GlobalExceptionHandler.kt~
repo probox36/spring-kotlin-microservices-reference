@@ -78,7 +78,7 @@ class GlobalExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException::class)
     fun handleDataIntegrity(e: DataIntegrityViolationException): MessageDto {
         val rootCause = e.rootCause
-        log.error { "Data integrity violation exception thrown: ${ rootCause?.message }" }
+
         val errorMessage = if (rootCause is PSQLException) {
             when (rootCause.sqlState) {
                 "23502" -> messages.get("exceptions.psql.not-null") // NOT NULL violation

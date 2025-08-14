@@ -79,7 +79,7 @@ class ProductServiceImpl : ProductService {
     override fun getProductsByRestaurant(restaurantId: UUID, pageable: Pageable): Page<Product> {
         return repo.findByRestaurantId(restaurantId, pageable)
     }
-
+    
     @Caching(
         put = [CachePut(CacheNames.PRODUCTS, "#id")],
         evict = [CacheEvict(CacheNames.PRODUCT_COLLECTION, allEntries = true)]
@@ -92,10 +92,7 @@ class ProductServiceImpl : ProductService {
         return product
     }
 
-    @Caching(
-        put = [CachePut(CacheNames.PRODUCTS, "#id")],
-        evict = [CacheEvict(CacheNames.PRODUCT_COLLECTION, allEntries = true)]
-    )
+    @CachePut(CacheNames.PRODUCTS, "#id")
     override fun updatePrice(id: UUID, price: Long): Product {
         val product = getProduct(id)
         product.price = price

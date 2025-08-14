@@ -7,8 +7,8 @@ import org.springframework.data.domain.Pageable
 import java.util.*
 
 interface MockPaymentService {
-    fun pay(orderId: UUID, value: Long)
-    fun payByPaymentId(paymentId: UUID, value: Long)
+    fun pay(orderId: UUID, value: Long): Payment
+    fun payByPaymentId(paymentId: UUID, value: Long): Payment
     fun cancel(orderId: UUID)
     fun createPayment(payment: Payment): Payment
     fun createPayment(orderId: UUID): Payment

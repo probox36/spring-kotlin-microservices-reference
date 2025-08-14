@@ -65,6 +65,8 @@ subprojects {
         implementation("org.springframework.boot:spring-boot-starter-validation")
         implementation("io.github.oshai:kotlin-logging-jvm:7.0.7")
         implementation("ch.qos.logback:logback-classic:1.5.18")
+        implementation("org.springframework.boot:spring-boot-starter-data-redis")
+        implementation("org.springframework.boot:spring-boot-starter-cache")
 //        implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j")
 //        implementation("org.springframework.cloud:spring-cloud-starter-gateway-server-webmvc")
 //        implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")

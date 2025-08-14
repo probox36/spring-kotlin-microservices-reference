@@ -1,5 +1,6 @@
 package com.buoyancy.order.controller
 
+import com.buoyancy.common.exceptions.BadRequestException
 import com.buoyancy.common.model.dto.OrderDto
 import com.buoyancy.common.model.dto.rest.MessageDto
 import com.buoyancy.common.model.dto.rest.ResourceDto
@@ -42,13 +43,7 @@ class OrderController {
     @PutMapping("/{id}/cancel")
     fun cancelOrder(@PathVariable id: UUID): MessageDto {
         service.cancelOrder(id)
-        return MessageDto(200, messages.get("rest.response.orders.cancelled"))
-    }
-
-    @PutMapping("/{id}/close")
-    fun closeOrder(@PathVariable id: UUID): MessageDto {
-        service.cancelOrder(id)
-        return MessageDto(200, messages.get("rest.response.orders.closed"))
+        return MessageDto(200, messages.get("rest.response.orders.cancelled", id))
     }
 
     @GetMapping("/{id}")
@@ -61,6 +56,7 @@ class OrderController {
     fun updateOrder(@Valid @RequestBody orderDto: OrderDto): ResourceDto<OrderDto> {
         val order = mapper.toEntity(orderDto)
         order.id?.let { service.updateOrder(it, order) }
+            ?: throw BadRequestException(messages.get("exceptions.bad-request.order.null-id"))
         val message = messages.get("rest.response.orders.updated")
         return ResourceDto(200, message, mapper.toDto(order))
     }

@@ -3,6 +3,7 @@ package com.buoyancy.common.model.entity
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import jakarta.persistence.*
+import java.io.Serializable
 import java.util.*
 
 @Entity
@@ -16,4 +17,4 @@ data class User (
     var name: String,
     var lastName: String,
     var email: String
-)
+): Serializable

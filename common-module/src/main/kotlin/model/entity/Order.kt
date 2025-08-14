@@ -4,6 +4,7 @@ import com.buoyancy.common.model.enums.OrderStatus
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import jakarta.persistence.*
+import java.io.Serializable
 import java.time.LocalDateTime
 import java.util.*
 
@@ -30,4 +31,4 @@ data class Order(
         inverseJoinColumns = [JoinColumn(name="product_id", referencedColumnName="id")]
     )
     var items: List<Product> = emptyList()
-)
+): Serializable
