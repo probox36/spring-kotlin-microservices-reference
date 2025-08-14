@@ -12,5 +12,5 @@ data class RestaurantDto (
     @NotBlank val phoneNumber: String,
     @Email val email: String,
     @NotNull val cuisineType: String,
-    val operating: Boolean?
+    val operating: Boolean? = true
 )

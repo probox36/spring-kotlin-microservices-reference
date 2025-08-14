@@ -1,7 +1,7 @@
 package com.buoyancy.payment.controller
 
 import com.buoyancy.common.model.dto.rest.MessageDto
-import com.buoyancy.common.model.dto.PaymentDto
+import com.buoyancy.common.model.dto.rest.PaymentDto
 import com.buoyancy.common.model.dto.rest.ResourceDto
 import com.buoyancy.common.model.enums.PaymentStatus
 import com.buoyancy.common.model.mapper.PaymentMapper

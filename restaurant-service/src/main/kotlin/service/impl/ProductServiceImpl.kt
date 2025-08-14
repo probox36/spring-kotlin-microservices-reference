@@ -48,7 +48,7 @@ class ProductServiceImpl : ProductService {
 
     override fun getProduct(id: UUID): Product {
         return repo.findById(id).orElseThrow {
-            NotFoundException("Product with id $id not found")
+            NotFoundException(messages.get("exceptions.not-found.product", id))
         }
     }
 

@@ -5,6 +5,7 @@ import com.buoyancy.common.exceptions.NotFoundException
 import com.buoyancy.common.model.dto.messaging.events.SuborderEvent
 import com.buoyancy.common.model.entity.Restaurant
 import com.buoyancy.common.model.entity.Suborder
+import com.buoyancy.common.model.enums.CacheNames
 import com.buoyancy.common.model.enums.SuborderStatus
 import com.buoyancy.common.model.enums.SuborderStatus.*
 import com.buoyancy.common.repository.SuborderRepository
@@ -13,6 +14,10 @@ import com.buoyancy.restaurant.messaging.producer.SuborderTemplate
 import com.buoyancy.restaurant.service.SuborderService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.CachePut
+import org.springframework.cache.annotation.Cacheable
+import org.springframework.cache.annotation.Caching
 import org.springframework.context.MessageSource
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -31,14 +36,17 @@ class SuborderServiceImpl : SuborderService {
     @Autowired
     private lateinit var messages : MessageSource
 
+    @Cacheable(CacheNames.SUBORDER_COLLECTION)
     override fun getSuborders(pageable: Pageable): Page<Suborder> {
         return repo.findAll(pageable)
     }
 
+    @Cacheable(CacheNames.SUBORDER_COLLECTION, "{#restaurantId, #pageable}")
     override fun getSubordersByRestaurant(restaurantId: UUID, pageable: Pageable): Page<Suborder> {
         return repo.findByRestaurantId(restaurantId, pageable)
     }
 
+    @Cacheable(CacheNames.SUBORDER_COLLECTION, "{#restaurant.id, #pageable}")
     override fun getSubordersByRestaurant(restaurant: Restaurant, pageable: Pageable): Page<Suborder> {
         return repo.findByRestaurant(restaurant, pageable)
     }
@@ -91,12 +99,17 @@ class SuborderServiceImpl : SuborderService {
             ?: throw BadRequestException(messages.get("exceptions.bad-request.suborder.null-id"))
     }
 
+    @Cacheable(CacheNames.SUBORDERS)
     override fun getSuborder(id: UUID): Suborder {
         return repo.findById(id).orElseThrow {
             NotFoundException(messages.get("exceptions.not-found.suborder", id))
         }
     }
 
+    @Caching(
+        put = [CachePut(CacheNames.SUBORDERS, "#id")],
+        evict = [CacheEvict(CacheNames.SUBORDER_COLLECTION, allEntries = true)]
+    )
     @Transactional
     private fun updateStatus(id: UUID, status: SuborderStatus) {
         val suborder = getSuborder(id)

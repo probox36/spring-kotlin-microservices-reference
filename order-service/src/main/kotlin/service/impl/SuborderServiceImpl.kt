@@ -9,10 +9,12 @@ import com.buoyancy.common.model.entity.Suborder
 import com.buoyancy.common.model.enums.SuborderStatus
 import com.buoyancy.common.model.enums.SuborderStatus.CREATED
 import com.buoyancy.common.repository.SuborderRepository
+import com.buoyancy.common.utils.get
 import com.buoyancy.order.messaging.producer.SuborderTemplate
 import com.buoyancy.order.service.SuborderService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.MessageSource
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.transaction.support.TransactionSynchronization
@@ -30,11 +32,13 @@ class SuborderServiceImpl : SuborderService {
     private lateinit var repo: SuborderRepository
     @Autowired
     private lateinit var kafka: SuborderTemplate
+    @Autowired
+    private lateinit var messages : MessageSource
 
     @Transactional
     override fun createSuborder(suborder: Suborder): Suborder {
         if (suborder.id != null && repo.existsById(suborder.id!!)) {
-            throw ConflictException("Suborder with id ${suborder.id} already exists")
+            throw ConflictException(messages.get("exceptions.conflict.suborder", suborder.id!!))
         }
         log.info { "Creating suborder for order ${suborder.order.id}" }
         suborder.status = CREATED
@@ -59,7 +63,7 @@ class SuborderServiceImpl : SuborderService {
 
     override fun getSuborder(id: UUID): Suborder {
         return repo.findById(id).orElseThrow {
-            NotFoundException("Suborder with id $id not found")
+            NotFoundException(messages.get("exceptions.not-found.suborder", id))
         }
     }
 

@@ -37,7 +37,7 @@ spring:
     port: 587
     username: probox36@gmail.com
     #    TODO: Убрать
-    password: ""
+    password:
     properties:
       mail:
         smtp:
@@ -52,7 +52,7 @@ spring:
     driver-class-name: org.postgresql.Driver
     username: postgres
     #   TODO: Убрать
-    password: ""
+    password:
     url: jdbc:${spring.datasource.base-url}
     show-sql: true
 
@@ -61,3 +61,12 @@ spring:
     locations: classpath:migration
     user: ${spring.datasource.username}
     password: ${spring.datasource.password}
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  cache:
+    type: redis
+    redis:
+      timeout: 60s

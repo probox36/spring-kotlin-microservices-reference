@@ -28,20 +28,20 @@ class OrderListener() {
 
         log.info { "Received order event $event" }
 
-        fun send(messageBodyCode: String) {
+        fun send(message: String) {
             email.send(
                 to = event.userEmail,
                 subject = messages.get("email.subjects.order"),
-                body = messages.get(messageBodyCode, id)
+                body = message
             )
         }
 
         when (event.type) {
-            OrderStatus.CREATED -> send("notifications.order.created")
-            OrderStatus.READY -> send("notifications.order.ready")
-            OrderStatus.PREPARING -> send("notifications.order.preparing")
-            OrderStatus.POSTPONED -> send("notifications.order.postponed")
-            OrderStatus.CANCELLED -> send("notifications.order.cancelled")
+            OrderStatus.CREATED -> send(messages.get("notifications.order.created", id))
+            OrderStatus.READY -> send(messages.get("notifications.order.ready", id))
+            OrderStatus.PREPARING -> send(messages.get("notifications.order.preparing", id))
+            OrderStatus.POSTPONED -> send(messages.get("notifications.order.postponed", id))
+            OrderStatus.CANCELLED -> send(messages.get("notifications.order.cancelled", id))
             else -> {}
         }
     }

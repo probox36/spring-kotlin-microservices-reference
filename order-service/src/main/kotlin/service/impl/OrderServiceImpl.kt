@@ -5,6 +5,7 @@ import com.buoyancy.common.exceptions.ConflictException
 import com.buoyancy.common.exceptions.NotFoundException
 import com.buoyancy.common.model.dto.messaging.events.OrderEvent
 import com.buoyancy.common.model.entity.Order
+import com.buoyancy.common.model.enums.OrderStatus.*
 import com.buoyancy.common.model.enums.OrderStatus
 import com.buoyancy.common.repository.OrderRepository
 import com.buoyancy.common.utils.get
@@ -40,10 +41,10 @@ class OrderServiceImpl : OrderService {
             throw ConflictException(conflictMessage)
         }
         log.info { "Creating order $order for user ${order.user.id}" }
-        order.status = OrderStatus.CREATED
+        order.status = CREATED
         val savedOrder = repo.save(order)
         afterCommit {
-            kafka.sendOrderEvent(OrderEvent(savedOrder, OrderStatus.CREATED))
+            kafka.sendOrderEvent(OrderEvent(savedOrder, CREATED))
             log.info { "Order for user ${savedOrder.user.id} created and message sent: $savedOrder" }
         }
         return savedOrder
@@ -70,31 +71,25 @@ class OrderServiceImpl : OrderService {
     }
 
     override fun cancelOrder(id: UUID) {
-        self.updateStatus(id, OrderStatus.CANCELLED)
+        if (getStatus(id) == READY)
+            throw BadRequestException(messages.get("exceptions.bad-request.order.cancel", id))
+        self.updateStatus(id, CANCELLED)
     }
 
     override fun getOrder(id: UUID): Order {
         return repo.findById(id).orElseThrow {
-            NotFoundException("Order with id $id not found")
-        }
-    }
-
-    override fun closeOrder(id: UUID) {
-        val order = getOrder(id)
-        when (order.status) {
-            OrderStatus.READY -> self.updateStatus(id, OrderStatus.READY)
-            else -> throw BadRequestException("Order with id $id is not ready yet")
+            NotFoundException(messages.get("exceptions.not-found.order", id))
         }
     }
 
     @Transactional
-    override fun updateOrder(id: UUID, update: Order) {
+    override fun updateOrder(id: UUID, updated: Order): Order {
         val order = getOrder(id)
-        order.user = update.user
-        order.status = update.status
-        order.items = update.items
+        order.user = updated.user
+        order.status = updated.status
+        order.items = updated.items
         log.info { "Updated order ${order.id} to $order" }
-        repo.save(order)
+        return repo.save(order)
     }
 
     private fun afterCommit(action: () -> Unit) {

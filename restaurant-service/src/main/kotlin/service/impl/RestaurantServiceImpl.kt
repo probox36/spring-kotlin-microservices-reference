@@ -40,7 +40,7 @@ class RestaurantServiceImpl : RestaurantService {
 
     override fun getRestaurant(id: UUID): Restaurant {
         return repo.findById(id).orElseThrow {
-            NotFoundException("Restaurant with id $id not found")
+            NotFoundException(messages.get("exceptions.not-found.restaurant", id))
         }
     }
 

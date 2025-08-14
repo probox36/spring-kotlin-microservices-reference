@@ -1,6 +1,6 @@
 package com.buoyancy.common.model.mapper
 
-import com.buoyancy.common.model.dto.rest.PaymentDto
+import com.buoyancy.common.model.dto.PaymentDto
 import com.buoyancy.common.model.entity.Order
 import com.buoyancy.common.model.entity.Payment
 import com.buoyancy.common.repository.OrderRepository
