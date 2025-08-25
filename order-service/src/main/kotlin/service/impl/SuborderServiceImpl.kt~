@@ -34,6 +34,8 @@ class SuborderServiceImpl : SuborderService {
     private val log = KotlinLogging.logger {}
 
     @Autowired
+    private lateinit var self: SuborderServiceImpl
+    @Autowired
     private lateinit var repo: SuborderRepository
     @Autowired
     private lateinit var kafka: SuborderTemplate
@@ -86,6 +88,7 @@ class SuborderServiceImpl : SuborderService {
         }
     }
 
+    @Transactional
     override fun splitToSuborders(orderId: UUID): List<SuborderDto> {
         val order = orderRepo.findById(orderId).orElseThrow {
             NotFoundException(messages.get("exceptions.not-found.order", orderId))
@@ -93,6 +96,7 @@ class SuborderServiceImpl : SuborderService {
         val subordersMap = order.items.groupBy { it.restaurant.id }
         val suborders = subordersMap.map { (restaurantId, items) ->
             val itemIds = items.mapNotNull { it.id }
+
             SuborderDto(
                 id = null,
                 orderId = order.id!!,

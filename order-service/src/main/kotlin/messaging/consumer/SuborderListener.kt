@@ -30,26 +30,27 @@ class SuborderListener {
     fun receiveSuborderRecord(eventRecord: ConsumerRecord<String, SuborderEvent>) {
         log.info { "Received suborder event ${eventRecord.value()}" }
         val event = eventRecord.value()
-        val suborder = suborderService.getSuborder(event.suborderId).order
+        val suborder = suborderService.getSuborder(event.suborderId)
+        val order = orderService.getOrder(suborder.orderId)
 
-        requireNotNull(suborder.id) { "Received suborder event of type ${event.type} with null suborder id" }
+        requireNotNull(order.id) { "Received suborder event of type ${event.type} with null suborder id" }
 
         when (event.type) {
             SuborderStatus.PREPARING -> {
-                if (suborder.status == OrderStatus.CREATED) {
-                    orderService.updateStatus(suborder.id!!, OrderStatus.PREPARING)
+                if (order.status == OrderStatus.CREATED) {
+                    orderService.updateStatus(order.id!!, OrderStatus.PREPARING)
                 }
             }
             SuborderStatus.POSTPONED -> {
-                if (suborder.status in arrayOf(OrderStatus.PREPARING, OrderStatus.CREATED)) {
-                    orderService.updateStatus(suborder.id!!, OrderStatus.POSTPONED)
+                if (order.status in arrayOf(OrderStatus.PREPARING, OrderStatus.CREATED)) {
+                    orderService.updateStatus(order.id!!, OrderStatus.POSTPONED)
                 }
             }
             SuborderStatus.READY -> {
-                val suborders = suborderRepo.findByOrder(suborder)
+                val suborders = suborderRepo.findByOrderId(order.id!!)
                 if (suborders.all { it.status == SuborderStatus.READY }) {
-                    log.info { "All suborders of order ${suborder.id} are ready. Updating parent order status" }
-                    orderService.updateStatus(suborder.id!!, OrderStatus.READY)
+                    log.info { "All suborders of order ${order.id} are ready. Updating parent order status" }
+                    orderService.updateStatus(order.id!!, OrderStatus.READY)
                 }
             }
             else -> {}

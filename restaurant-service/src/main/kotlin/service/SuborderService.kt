@@ -1,21 +1,22 @@
 package com.buoyancy.restaurant.service
 
+import com.buoyancy.common.model.dto.SuborderDto
 import com.buoyancy.common.model.entity.Restaurant
 import com.buoyancy.common.model.entity.Suborder
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
-import java.util.UUID
+import java.util.*
 
 interface SuborderService {
 
-    fun getSuborders(pageable: Pageable): Page<Suborder>
-    fun getSubordersByRestaurant(restaurantId: UUID, pageable: Pageable): Page<Suborder>
-    fun getSubordersByRestaurant(restaurant: Restaurant, pageable: Pageable): Page<Suborder>
-    fun markSuborderAsPreparing(id: UUID)
-    fun markSuborderAsPreparing(suborder: Suborder)
-    fun markSuborderAsReady(id: UUID)
-    fun markSuborderAsReady(suborder: Suborder)
-    fun postponeSuborder(id: UUID)
-    fun postponeSuborder(suborder: Suborder)
-    fun getSuborder(id: UUID): Suborder
+    fun getSuborders(pageable: Pageable): Page<SuborderDto>
+    fun getSubordersByRestaurantId(restaurantId: UUID, pageable: Pageable): Page<SuborderDto>
+    fun getSubordersByRestaurant(restaurant: Restaurant, pageable: Pageable): Page<SuborderDto>
+    fun markSuborderAsPreparing(id: UUID): SuborderDto
+    fun markSuborderAsPreparing(suborder: SuborderDto): SuborderDto
+    fun markSuborderAsReady(id: UUID): SuborderDto
+    fun markSuborderAsReady(suborder: SuborderDto): SuborderDto
+    fun postponeSuborder(id: UUID): SuborderDto
+    fun postponeSuborder(suborder: SuborderDto): SuborderDto
+    fun getSuborder(id: UUID): SuborderDto
 }

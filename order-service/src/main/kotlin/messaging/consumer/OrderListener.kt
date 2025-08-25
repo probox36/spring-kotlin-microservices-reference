@@ -26,23 +26,20 @@ class OrderListener {
     private lateinit var suborderService: SuborderServiceImpl
     @Autowired
     private lateinit var suborderRepository: SuborderRepository
-    @Autowired
-    private lateinit var orderService: OrderService
 
     @KafkaListener(topics = [TopicNames.ORDER], groupId = GroupIds.ORDER_GROUP)
     @Transactional
     fun receiveOrderRecord(eventRecord: ConsumerRecord<String, OrderEvent>) {
         log.info { "Received order event ${eventRecord.value()}" }
         val event = eventRecord.value()
-        val id = event.orderId
+        val orderId = event.orderId
 
         when (event.type) {
             OrderStatus.CREATED -> {
-                val order = orderService.getOrder(id)
-                val suborders = suborderService.splitToSuborders(order)
+                val suborders = suborderService.splitToSuborders(orderId)
                 suborders.forEach { suborderService.createSuborder(it) }
             }
-            OrderStatus.CANCELLED -> updateChildSuborders(id, CANCELLED)
+            OrderStatus.CANCELLED -> updateChildSuborders(orderId, CANCELLED)
             else -> {}
         }
     }

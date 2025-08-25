@@ -1,5 +1,6 @@
-package com.buoyancy.order.messaging.config
+package com.buoyancy.common.config.messaging
 
+import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.errors.RecordDeserializationException
 import org.slf4j.LoggerFactory
@@ -14,7 +15,7 @@ class LoggingErrorHandler : CommonErrorHandler {
     override fun handleOne(
         exception: Exception,
         record: ConsumerRecord<*, *>,
-        consumer: org.apache.kafka.clients.consumer.Consumer<*, *>,
+        consumer: Consumer<*, *>,
         container: MessageListenerContainer
     ) : Boolean {
         log.error("Kafka message processing exception. Topic: ${record.topic()}; Partition: ${record.partition()}; " +
@@ -30,7 +31,7 @@ class LoggingErrorHandler : CommonErrorHandler {
 
     override fun handleOtherException(
         exception: Exception,
-        consumer: org.apache.kafka.clients.consumer.Consumer<*, *>,
+        consumer: Consumer<*, *>,
         container: MessageListenerContainer,
         batchListener: Boolean
     ) {

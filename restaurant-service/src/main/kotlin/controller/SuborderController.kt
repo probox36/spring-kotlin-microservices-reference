@@ -21,12 +21,10 @@ class SuborderController {
     lateinit var service: SuborderService
     @Autowired
     private lateinit var messages : MessageSource
-    @Autowired
-    private lateinit var mapper: SuborderMapper
 
     @GetMapping()
     fun getSuborders(pageable: Pageable): Page<SuborderDto> {
-        return service.getSuborders(pageable).map { mapper.toDto(it) }
+        return service.getSuborders(pageable)
     }
 
     @PostMapping("/{id}/accept")
@@ -52,11 +50,11 @@ class SuborderController {
 
     @GetMapping("/restaurant/{restaurantId}")
     fun getSubordersByRestaurant(@PathVariable restaurantId: UUID, pageable: Pageable): Page<SuborderDto> {
-        return service.getSubordersByRestaurant(restaurantId, pageable).map { mapper.toDto(it) }
+        return service.getSubordersByRestaurantId(restaurantId, pageable)
     }
 
     @GetMapping("/{id}")
     fun getSuborder(@PathVariable id: UUID): SuborderDto {
-        return mapper.toDto(service.getSuborder(id))
+        return service.getSuborder(id)
     }
 }

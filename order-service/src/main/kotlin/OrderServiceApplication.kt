@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 @EnableJpaRepositories("com.buoyancy.common.repository")
 @EntityScan("com.buoyancy.common.model")
 @EnableCaching
-@ComponentScan("com.buoyancy.common.model", "com.buoyancy.common.exceptions", "com.buoyancy.order", "com.buoyancy.common")
+@ComponentScan("com.buoyancy.common", "com.buoyancy.order")
 @SpringBootApplication
 class OrderServiceApplication
 

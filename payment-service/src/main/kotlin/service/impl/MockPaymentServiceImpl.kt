@@ -2,23 +2,27 @@ package com.buoyancy.payment.service.impl
 
 import com.buoyancy.common.exceptions.BadRequestException
 import com.buoyancy.common.exceptions.NotFoundException
+import com.buoyancy.common.model.dto.PaymentDto
 import com.buoyancy.common.model.dto.messaging.events.PaymentEvent
 import com.buoyancy.common.model.entity.Order
 import com.buoyancy.common.model.entity.Payment
 import com.buoyancy.common.model.enums.CacheNames
 import com.buoyancy.common.model.enums.PaymentStatus
+import com.buoyancy.common.model.mapper.PaymentMapper
 import com.buoyancy.common.repository.OrderRepository
 import com.buoyancy.common.repository.PaymentRepository
 import com.buoyancy.common.utils.get
 import com.buoyancy.payment.messaging.producer.PaymentTemplate
 import com.buoyancy.payment.service.MockPaymentService
 import io.github.oshai.kotlinlogging.KotlinLogging
+import jakarta.persistence.EntityNotFoundException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.CachePut
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.cache.annotation.Caching
 import org.springframework.context.MessageSource
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.scheduling.annotation.Scheduled
@@ -44,17 +48,19 @@ class MockPaymentServiceImpl: MockPaymentService {
     private lateinit var kafka: PaymentTemplate
     @Autowired
     private lateinit var messages: MessageSource
+    @Autowired
+    private lateinit var mapper: PaymentMapper
 
     @Caching(
         put = [CachePut(CacheNames.PAYMENTS, "#paymentId")],
         evict = [CacheEvict(CacheNames.PAYMENT_COLLECTION, allEntries = true)]
     )
     @Transactional
-    override fun payByPaymentId(paymentId: UUID, value: Long): Payment {
+    override fun payByPaymentId(paymentId: UUID, value: Long): PaymentDto {
         if (value <= 0) { throw BadRequestException(
             messages.get("exceptions.bad-request.payment.value-negative"))
         }
-        val payment = getPayment(paymentId)
+        val payment = getPaymentEntity(paymentId)
         payment.valuePaid += value
         paymentRepo.save(payment)
         val left = (payment.value - payment.valuePaid).coerceIn(0, payment.value)
@@ -63,26 +69,27 @@ class MockPaymentServiceImpl: MockPaymentService {
             log.info { "Order ${payment.id} was fully paid" }
             self.updateStatus(paymentId, PaymentStatus.SUCCESS)
         }
-        return payment
+        return mapper.toDto(payment)
     }
 
-    override fun pay(orderId: UUID, value: Long): Payment {
+    override fun pay(orderId: UUID, value: Long): PaymentDto {
         return payByPaymentId(getPaymentByOrderId(orderId).id!!, value)
     }
 
-    override fun cancel(paymentId: UUID) {
-        self.updateStatus(paymentId, PaymentStatus.EXPIRED)
+    override fun cancel(paymentId: UUID): PaymentDto {
+        return self.updateStatus(paymentId, PaymentStatus.EXPIRED)
     }
 
     @Caching(
         put = [CachePut(CacheNames.PAYMENTS, "#payment.id")],
         evict = [CacheEvict(CacheNames.PAYMENT_COLLECTION, allEntries = true)]
     )
-    override fun createPayment(payment: Payment): Payment {
-        log.info { "Creating payment $payment" }
-        val created = paymentRepo.save(payment)
+    override fun createPayment(dto: PaymentDto): PaymentDto {
+        log.info { "Creating payment $dto" }
+        val payment = mapper.toEntity(dto)
+        val created = withHandling { paymentRepo.save(payment) }
         log.info { "Payment ${ created.id } created" }
-        return created
+        return mapper.toDto(created)
     }
 
     @Caching(
@@ -90,20 +97,24 @@ class MockPaymentServiceImpl: MockPaymentService {
         evict = [CacheEvict(CacheNames.PAYMENT_COLLECTION, allEntries = true)]
     )
     @Transactional
-    override fun createPayment(orderId: UUID): Payment {
+    override fun createPayment(orderId: UUID): PaymentDto {
         val order = orderRepo.findById(orderId).orElseThrow {
             NotFoundException(messages.get("rest.exceptions.order-not-found", orderId))
         }
         val value = calculateValue(order)
-        return createPayment(Payment(
+        return createPayment(PaymentDto(
             id = null,
-            order = order,
+            orderId = order.id!!,
             value = value
         ))
     }
 
     @Cacheable(CacheNames.PAYMENTS)
-    override fun getPayment(paymentId: UUID): Payment {
+    override fun getPayment(id: UUID): PaymentDto {
+        return mapper.toDto(getPaymentEntity(id))
+    }
+
+    private fun getPaymentEntity(paymentId: UUID): Payment {
         return paymentRepo.findById(paymentId).orElseThrow {
             NotFoundException(messages.get("exceptions.not-found.payment", paymentId))
         }
@@ -114,8 +125,8 @@ class MockPaymentServiceImpl: MockPaymentService {
         evict = [CacheEvict(CacheNames.PAYMENT_COLLECTION, allEntries = true)]
     )
     @Transactional
-    override fun updateStatus(paymentId: UUID, status: PaymentStatus, errorReason: String?): Payment {
-        val payment = getPayment(paymentId)
+    override fun updateStatus(paymentId: UUID, status: PaymentStatus, errorReason: String?): PaymentDto {
+        val payment = getPaymentEntity(paymentId)
         var updated = payment
         if (payment.status != status) {
 
@@ -137,18 +148,18 @@ class MockPaymentServiceImpl: MockPaymentService {
                 log.info { "Updated status of payment $paymentId to $status" }
             }
         }
-        return updated
+        return mapper.toDto(updated)
     }
 
     @Cacheable(CacheNames.PAYMENTS, key = "'by-order-id:' + #orderId")
-    override fun getPaymentByOrderId(orderId: UUID): Payment {
-        return paymentRepo.findFirstByOrderIdAndStatus(orderId)
-            ?: throw NotFoundException(messages.get("exceptions.not-found.payment-by-order", orderId))
+    override fun getPaymentByOrderId(orderId: UUID): PaymentDto {
+        return mapper.toDto(paymentRepo.findFirstByOrderIdAndStatus(orderId)
+            ?: throw NotFoundException(messages.get("exceptions.not-found.payment-by-order", orderId)))
     }
 
     @Cacheable(CacheNames.PAYMENT_COLLECTION)
-    override fun getPayments(pageable: Pageable): Page<Payment> {
-        return paymentRepo.findAll(pageable)
+    override fun getPayments(pageable: Pageable): Page<PaymentDto> {
+        return paymentRepo.findAll(pageable).map { mapper.toDto(it) }
     }
 
     @Scheduled(fixedDelay = 2, timeUnit = TimeUnit.MINUTES)
@@ -168,5 +179,15 @@ class MockPaymentServiceImpl: MockPaymentService {
         registerSynchronization(object : TransactionSynchronization {
             override fun afterCommit() { action() }
         })
+    }
+
+    private fun <T> withHandling(block: () -> T): T {
+        return try {
+            block()
+        } catch (_: EntityNotFoundException) {
+            throw NotFoundException(messages.get("exceptions.psql.foreign-key"))
+        } catch (_: DataIntegrityViolationException) {
+            throw BadRequestException(messages.get("exceptions.psql.integrity"))
+        }
     }
 }

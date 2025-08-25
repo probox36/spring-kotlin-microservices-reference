@@ -72,12 +72,10 @@ class RestaurantServiceImpl : RestaurantService {
         put = [CachePut(CacheNames.RESTAURANTS, "#id")],
         evict = [CacheEvict(CacheNames.RESTAURANTS_COLLECTION, allEntries = true)]
     )
-    override fun updateRestaurant(id: UUID, dto: RestaurantDto): RestaurantDto {
-        val restaurant = mapper.toEntity(dto)
+    override fun updateRestaurant(id: UUID, restaurant: RestaurantDto): RestaurantDto {
         restaurant.id = id
-        val saved = withHandling { repo.save(restaurant) }
-        log.info { "Updated restaurant $id to $dto" }
-        return mapper.toDto(saved)
+        log.info { "Updating restaurant $restaurant" }
+        return repo.save(restaurant)
     }
 
     @Caching(
@@ -94,10 +92,10 @@ class RestaurantServiceImpl : RestaurantService {
         evict = [CacheEvict(CacheNames.RESTAURANTS_COLLECTION, allEntries = true)]
     )
     override fun updateName(id: UUID, name: String): RestaurantDto {
-        val restaurant = getRestaurantEntity(id)
+        val restaurant = getRestaurant(id)
         restaurant.name = name
         log.info { "Updating name of restaurant ${restaurant.id} from ${restaurant.name} to $name" }
-        return mapper.toDto(repo.save(restaurant))
+        return repo.save(restaurant)
     }
 
     @Caching(
@@ -105,10 +103,10 @@ class RestaurantServiceImpl : RestaurantService {
         evict = [CacheEvict(CacheNames.RESTAURANTS_COLLECTION, allEntries = true)]
     )
     override fun updateAddress(id: UUID, address: String): RestaurantDto {
-        val restaurant = getRestaurantEntity(id)
+        val restaurant = getRestaurant(id)
         restaurant.address = address
         log.info { "Updating address of restaurant ${restaurant.id} from ${restaurant.address} to $address" }
-        return mapper.toDto(repo.save(restaurant))
+        return repo.save(restaurant)
     }
 
     @Caching(
@@ -116,10 +114,10 @@ class RestaurantServiceImpl : RestaurantService {
         evict = [CacheEvict(CacheNames.RESTAURANTS_COLLECTION, allEntries = true)]
     )
     override fun updatePhone(id: UUID, phone: String): RestaurantDto {
-        val restaurant = getRestaurantEntity(id)
+        val restaurant = getRestaurant(id)
         restaurant.phoneNumber = phone
         log.info { "Updating phone number of restaurant ${restaurant.id} from ${restaurant.phoneNumber} to $phone" }
-        return mapper.toDto(repo.save(restaurant))
+        return repo.save(restaurant)
     }
 
     @Caching(
@@ -127,10 +125,10 @@ class RestaurantServiceImpl : RestaurantService {
         evict = [CacheEvict(CacheNames.RESTAURANTS_COLLECTION, allEntries = true)]
     )
     override fun updateEmail(id: UUID, email: String): RestaurantDto {
-        val restaurant = getRestaurantEntity(id)
+        val restaurant = getRestaurant(id)
         restaurant.email = email
         log.info { "Updating email of restaurant ${restaurant.id} from ${restaurant.email} to $email" }
-        return mapper.toDto(repo.save(restaurant))
+        return repo.save(restaurant)
     }
     private fun <T> withHandling(block: () -> T): T {
         return try {
