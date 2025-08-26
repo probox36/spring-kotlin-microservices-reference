@@ -3,6 +3,7 @@ package com.buoyancy.common.repository
 import com.buoyancy.common.model.entity.Order
 import com.buoyancy.common.model.entity.Restaurant
 import com.buoyancy.common.model.entity.Suborder
+import com.buoyancy.common.model.enums.SuborderStatus
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
@@ -14,6 +15,6 @@ import java.util.*
 interface SuborderRepository : PagingAndSortingRepository<Suborder, UUID>, JpaRepository<Suborder, UUID> {
     fun findByOrder(order: Order): List<Suborder>
     fun findByOrderId(orderId: UUID): List<Suborder>
-    fun findByRestaurant(restaurant: Restaurant, pageable: Pageable): Page<Suborder>
+    fun findByRestaurantIdAndStatus(restaurantId: UUID, status: SuborderStatus, pageable: Pageable): Page<Suborder>
     fun findByRestaurantId(restaurantId: UUID, pageable: Pageable): Page<Suborder>
 }

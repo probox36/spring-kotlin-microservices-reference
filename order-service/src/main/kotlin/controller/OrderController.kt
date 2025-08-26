@@ -27,8 +27,9 @@ class OrderController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/create")
     fun createOrder(@Valid @RequestBody orderDto: OrderDto): ResourceDto<OrderDto> {
-        val message = messages.get("rest.response.orders.created")
-        return ResourceDto(201, message, service.createOrder(orderDto))
+        val created = service.createOrder(orderDto)
+        val message = messages.get("rest.response.orders.created", created.id!!)
+        return ResourceDto(201, message, created)
     }
 
     @GetMapping("/{id}/status")

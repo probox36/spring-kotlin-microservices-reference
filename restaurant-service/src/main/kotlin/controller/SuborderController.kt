@@ -2,8 +2,7 @@ package com.buoyancy.restaurant.controller
 
 import com.buoyancy.common.model.dto.SuborderDto
 import com.buoyancy.common.model.dto.rest.MessageDto
-import com.buoyancy.common.model.entity.Suborder
-import com.buoyancy.common.model.mapper.SuborderMapper
+import com.buoyancy.common.model.enums.SuborderStatus
 import com.buoyancy.common.utils.get
 import com.buoyancy.restaurant.service.SuborderService
 import org.springframework.beans.factory.annotation.Autowired
@@ -49,8 +48,9 @@ class SuborderController {
     }
 
     @GetMapping("/restaurant/{restaurantId}")
-    fun getSubordersByRestaurant(@PathVariable restaurantId: UUID, pageable: Pageable): Page<SuborderDto> {
-        return service.getSubordersByRestaurantId(restaurantId, pageable)
+    fun getSubordersByRestaurant(@PathVariable restaurantId: UUID, @RequestParam status: SuborderStatus?, pageable: Pageable): Page<SuborderDto> {
+        return status?.let { service.getSubordersByRestaurantIdAndStatus(restaurantId, it, pageable) }
+            ?: service.getSubordersByRestaurantId(restaurantId, pageable)
     }
 
     @GetMapping("/{id}")

@@ -30,6 +30,8 @@ class RestaurantServiceImpl : RestaurantService {
 
     private val log = KotlinLogging.logger {}
     @Autowired
+    private lateinit var self: RestaurantService
+    @Autowired
     private lateinit var repo: RestaurantRepository
     @Autowired
     private lateinit var messages: MessageSource
@@ -59,10 +61,10 @@ class RestaurantServiceImpl : RestaurantService {
 
     @Cacheable(CacheNames.RESTAURANTS)
     override fun getRestaurant(id: UUID): RestaurantDto {
-        return mapper.toDto(getRestaurantEntity(id))
+        return mapper.toDto(self.getRestaurantEntity(id))
     }
 
-    private fun getRestaurantEntity(id: UUID): Restaurant {
+    override fun getRestaurantEntity(id: UUID): Restaurant {
         return repo.findById(id).orElseThrow {
             NotFoundException(messages.get("exceptions.not-found.restaurant", id))
         }
@@ -94,7 +96,7 @@ class RestaurantServiceImpl : RestaurantService {
         evict = [CacheEvict(CacheNames.RESTAURANTS_COLLECTION, allEntries = true)]
     )
     override fun updateName(id: UUID, name: String): RestaurantDto {
-        val restaurant = getRestaurantEntity(id)
+        val restaurant = self.getRestaurantEntity(id)
         restaurant.name = name
         log.info { "Updating name of restaurant ${restaurant.id} from ${restaurant.name} to $name" }
         return mapper.toDto(repo.save(restaurant))
@@ -105,7 +107,7 @@ class RestaurantServiceImpl : RestaurantService {
         evict = [CacheEvict(CacheNames.RESTAURANTS_COLLECTION, allEntries = true)]
     )
     override fun updateAddress(id: UUID, address: String): RestaurantDto {
-        val restaurant = getRestaurantEntity(id)
+        val restaurant = self.getRestaurantEntity(id)
         restaurant.address = address
         log.info { "Updating address of restaurant ${restaurant.id} from ${restaurant.address} to $address" }
         return mapper.toDto(repo.save(restaurant))
@@ -116,7 +118,7 @@ class RestaurantServiceImpl : RestaurantService {
         evict = [CacheEvict(CacheNames.RESTAURANTS_COLLECTION, allEntries = true)]
     )
     override fun updatePhone(id: UUID, phone: String): RestaurantDto {
-        val restaurant = getRestaurantEntity(id)
+        val restaurant = self.getRestaurantEntity(id)
         restaurant.phoneNumber = phone
         log.info { "Updating phone number of restaurant ${restaurant.id} from ${restaurant.phoneNumber} to $phone" }
         return mapper.toDto(repo.save(restaurant))
@@ -127,7 +129,7 @@ class RestaurantServiceImpl : RestaurantService {
         evict = [CacheEvict(CacheNames.RESTAURANTS_COLLECTION, allEntries = true)]
     )
     override fun updateEmail(id: UUID, email: String): RestaurantDto {
-        val restaurant = getRestaurantEntity(id)
+        val restaurant = self.getRestaurantEntity(id)
         restaurant.email = email
         log.info { "Updating email of restaurant ${restaurant.id} from ${restaurant.email} to $email" }
         return mapper.toDto(repo.save(restaurant))

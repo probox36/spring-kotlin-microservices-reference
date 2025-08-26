@@ -10,10 +10,10 @@ import com.buoyancy.common.model.enums.CacheNames
 import com.buoyancy.common.model.enums.SuborderStatus
 import com.buoyancy.common.model.enums.SuborderStatus.CREATED
 import com.buoyancy.common.model.mapper.SuborderMapper
-import com.buoyancy.common.repository.OrderRepository
 import com.buoyancy.common.repository.SuborderRepository
 import com.buoyancy.common.utils.get
 import com.buoyancy.order.messaging.producer.SuborderTemplate
+import com.buoyancy.order.service.OrderService
 import com.buoyancy.order.service.SuborderService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.persistence.EntityNotFoundException
@@ -34,6 +34,8 @@ class SuborderServiceImpl : SuborderService {
     private val log = KotlinLogging.logger {}
 
     @Autowired
+    private lateinit var self: SuborderServiceImpl
+    @Autowired
     private lateinit var repo: SuborderRepository
     @Autowired
     private lateinit var kafka: SuborderTemplate
@@ -42,7 +44,7 @@ class SuborderServiceImpl : SuborderService {
     @Autowired
     private lateinit var mapper: SuborderMapper
     @Autowired
-    private lateinit var orderRepo: OrderRepository
+    private lateinit var orderService: OrderService
 
     @Transactional
     @CachePut(CacheNames.SUBORDERS, "#suborder.id")
@@ -51,12 +53,12 @@ class SuborderServiceImpl : SuborderService {
             throw ConflictException(messages.get("exceptions.conflict.suborder", suborderDto.id!!))
         }
 
-        log.info { "Creating suborder for order ${suborderDto.orderId}" }
         val suborder = mapper.toEntity(suborderDto).apply { status = CREATED }
         val saved = withHandling { repo.save(suborder) }
+        log.info { "Created suborder ${saved.id} for order ${suborderDto.orderId}" }
 
         afterCommit {
-            kafka.sendSuborderEvent(SuborderEvent(CREATED, suborderDto.id!!))
+            kafka.sendSuborderEvent(SuborderEvent(CREATED, saved.id!!))
             log.info { "Suborder for order ${saved.order.id} created and message sent: $saved" }
         }
         return mapper.toDto(saved)
@@ -65,7 +67,7 @@ class SuborderServiceImpl : SuborderService {
     @CachePut(CacheNames.SUBORDERS, "#id")
     @Transactional
     override fun updateStatus(id: UUID, status: SuborderStatus): SuborderDto {
-        val suborder = getSuborderEntity(id)
+        val suborder = self.getSuborderEntity(id)
         suborder.status = status
         repo.save(suborder)
         afterCommit {
@@ -77,19 +79,17 @@ class SuborderServiceImpl : SuborderService {
 
     @Cacheable(CacheNames.SUBORDERS)
     override fun getSuborder(id: UUID): SuborderDto {
-        return mapper.toDto(getSuborderEntity(id))
+        return mapper.toDto(self.getSuborderEntity(id))
     }
 
-    private fun getSuborderEntity(id: UUID): Suborder {
+    override fun getSuborderEntity(id: UUID): Suborder {
         return repo.findById(id).orElseThrow {
             NotFoundException(messages.get("exceptions.not-found.suborder", id))
         }
     }
 
     override fun splitToSuborders(orderId: UUID): List<SuborderDto> {
-        val order = orderRepo.findById(orderId).orElseThrow {
-            NotFoundException(messages.get("exceptions.not-found.order", orderId))
-        }
+        val order = orderService.getOrderEntity(orderId)
         val subordersMap = order.items.groupBy { it.restaurant.id }
         val suborders = subordersMap.map { (restaurantId, items) ->
             val itemIds = items.mapNotNull { it.id }

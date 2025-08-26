@@ -14,6 +14,7 @@ interface ProductService {
     fun updateProduct(id: UUID, product: ProductDto): ProductDto
     fun deleteProduct(id: UUID)
     fun getProduct(id: UUID): ProductDto
+    fun getProductEntity(id: UUID): Product
     fun getProducts(pageable: Pageable): Page<ProductDto>
     fun getProductsByRestaurant(restaurantId: UUID, pageable: Pageable): Page<ProductDto>
     fun updateName(id: UUID, name: String): ProductDto

@@ -60,7 +60,7 @@ class MockPaymentServiceImpl: MockPaymentService {
         if (value <= 0) { throw BadRequestException(
             messages.get("exceptions.bad-request.payment.value-negative"))
         }
-        val payment = getPaymentEntity(paymentId)
+        val payment = self.getPaymentEntity(paymentId)
         payment.valuePaid += value
         paymentRepo.save(payment)
         val left = (payment.value - payment.valuePaid).coerceIn(0, payment.value)
@@ -73,7 +73,7 @@ class MockPaymentServiceImpl: MockPaymentService {
     }
 
     override fun pay(orderId: UUID, value: Long): PaymentDto {
-        return payByPaymentId(getPaymentByOrderId(orderId).id!!, value)
+        return self.payByPaymentId(getPaymentByOrderId(orderId).id!!, value)
     }
 
     override fun cancel(paymentId: UUID): PaymentDto {
@@ -102,7 +102,7 @@ class MockPaymentServiceImpl: MockPaymentService {
             NotFoundException(messages.get("rest.exceptions.order-not-found", orderId))
         }
         val value = calculateValue(order)
-        return createPayment(PaymentDto(
+        return self.createPayment(PaymentDto(
             id = null,
             orderId = order.id!!,
             value = value
@@ -111,10 +111,10 @@ class MockPaymentServiceImpl: MockPaymentService {
 
     @Cacheable(CacheNames.PAYMENTS)
     override fun getPayment(id: UUID): PaymentDto {
-        return mapper.toDto(getPaymentEntity(id))
+        return mapper.toDto(self.getPaymentEntity(id))
     }
 
-    private fun getPaymentEntity(paymentId: UUID): Payment {
+    override fun getPaymentEntity(paymentId: UUID): Payment {
         return paymentRepo.findById(paymentId).orElseThrow {
             NotFoundException(messages.get("exceptions.not-found.payment", paymentId))
         }
@@ -126,7 +126,7 @@ class MockPaymentServiceImpl: MockPaymentService {
     )
     @Transactional
     override fun updateStatus(paymentId: UUID, status: PaymentStatus, errorReason: String?): PaymentDto {
-        val payment = getPaymentEntity(paymentId)
+        val payment = self.getPaymentEntity(paymentId)
         var updated = payment
         if (payment.status != status) {
 

@@ -1,7 +1,7 @@
 logging:
   level:
     org:
-      springframework: DEBUG
+      springframework: WARN
 
 spring:
   web:

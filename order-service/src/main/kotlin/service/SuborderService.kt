@@ -11,6 +11,7 @@ interface SuborderService {
 
     fun createSuborder(suborder: SuborderDto): SuborderDto
     fun getSuborder(id: UUID): SuborderDto
+    fun getSuborderEntity(id: UUID): Suborder
     fun splitToSuborders(orderId: UUID): List<SuborderDto>
     fun updateStatus(id: UUID, status: SuborderStatus): SuborderDto
 }

@@ -3,6 +3,7 @@ package com.buoyancy.common.model.dto
 import com.buoyancy.common.model.enums.SuborderStatus
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
+import java.io.Serializable
 import java.util.*
 
 data class SuborderDto(
@@ -11,4 +12,4 @@ data class SuborderDto(
     @NotNull var restaurantId: UUID,
     @NotEmpty var items: List<UUID>,
     var status: SuborderStatus = SuborderStatus.CREATED
-)
+): Serializable

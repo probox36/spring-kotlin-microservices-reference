@@ -1,6 +1,7 @@
 package com.buoyancy.restaurant.service
 
 import com.buoyancy.common.model.dto.RestaurantDto
+import com.buoyancy.common.model.entity.Restaurant
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import java.util.*
@@ -9,6 +10,7 @@ interface RestaurantService {
     fun createRestaurant(restaurant: RestaurantDto): RestaurantDto
     fun getRestaurants(pageable: Pageable): Page<RestaurantDto>
     fun getRestaurant(id: UUID): RestaurantDto
+    fun getRestaurantEntity(id: UUID): Restaurant
     fun updateRestaurant(id: UUID, restaurant: RestaurantDto): RestaurantDto
     fun deleteRestaurant(id: UUID)
     fun updateName(id: UUID, name: String): RestaurantDto

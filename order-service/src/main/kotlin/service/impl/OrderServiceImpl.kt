@@ -65,7 +65,7 @@ class OrderServiceImpl : OrderService {
     @CachePut(CacheNames.ORDERS, "#id")
     @Transactional
     override fun updateStatus(id: UUID, newStatus: OrderStatus): OrderDto {
-        val order = getOrderEntity(id)
+        val order = self.getOrderEntity(id)
         val updated = order
         val currentStatus = order.status
         if (currentStatus != newStatus) {
@@ -81,7 +81,7 @@ class OrderServiceImpl : OrderService {
     }
 
     override fun getStatus(id: UUID): OrderStatus {
-        return getOrder(id).status
+        return self.getOrder(id).status
     }
 
     override fun cancelOrder(id: UUID): OrderDto {
@@ -92,10 +92,10 @@ class OrderServiceImpl : OrderService {
 
     @Cacheable(CacheNames.ORDERS)
     override fun getOrder(id: UUID): OrderDto {
-        return mapper.toDto(getOrderEntity(id))
+        return mapper.toDto(self.getOrderEntity(id))
     }
 
-    private fun getOrderEntity(id: UUID): Order {
+    override fun getOrderEntity(id: UUID): Order {
         return repo.findById(id).orElseThrow {
             NotFoundException(messages.get("exceptions.not-found.order", id))
         }
@@ -104,7 +104,7 @@ class OrderServiceImpl : OrderService {
     @CachePut(CacheNames.ORDERS, "#id")
     @Transactional
     override fun updateOrder(id: UUID, update: OrderDto): OrderDto {
-        val order = getOrderEntity(id)
+        val order = self.getOrderEntity(id)
         val updated = mapper.toEntity(update).apply { this.id = id }
         log.info { "Updated order ${order.id} to $order" }
         return withHandling {

@@ -30,6 +30,8 @@ class ProductServiceImpl : ProductService {
 
     private val log = KotlinLogging.logger {}
     @Autowired
+    private lateinit var self: ProductService
+    @Autowired
     private lateinit var repo: ProductRepository
     @Autowired
     private lateinit var messages: MessageSource
@@ -75,10 +77,10 @@ class ProductServiceImpl : ProductService {
 
     @Cacheable(CacheNames.PRODUCTS)
     override fun getProduct(id: UUID): ProductDto {
-        return mapper.toDto(getProductEntity(id))
+        return mapper.toDto(self.getProductEntity(id))
     }
 
-    private fun getProductEntity(id: UUID): Product {
+    override fun getProductEntity(id: UUID): Product {
         return repo.findById(id).orElseThrow {
             NotFoundException(messages.get("exceptions.not-found.product", id))
         }
@@ -99,7 +101,7 @@ class ProductServiceImpl : ProductService {
         evict = [CacheEvict(CacheNames.PRODUCT_COLLECTION, allEntries = true)]
     )
     override fun updateName(id: UUID, name: String) : ProductDto {
-        val product = getProductEntity(id)
+        val product = self.getProductEntity(id)
         product.name = name
         repo.save(product)
         log.info { "Updated name of product ${product.id} from ${product.name} to $name" }
@@ -111,7 +113,7 @@ class ProductServiceImpl : ProductService {
         evict = [CacheEvict(CacheNames.PRODUCT_COLLECTION, allEntries = true)]
     )
     override fun updatePrice(id: UUID, price: Long): ProductDto {
-        val product = getProductEntity(id)
+        val product = self.getProductEntity(id)
         product.price = price
         repo.save(product)
         log.info { "Updated price of product ${product.id} from ${product.price} to $price" }

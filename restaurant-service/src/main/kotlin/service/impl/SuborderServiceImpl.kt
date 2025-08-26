@@ -4,7 +4,6 @@ import com.buoyancy.common.exceptions.BadRequestException
 import com.buoyancy.common.exceptions.NotFoundException
 import com.buoyancy.common.model.dto.SuborderDto
 import com.buoyancy.common.model.dto.messaging.events.SuborderEvent
-import com.buoyancy.common.model.entity.Restaurant
 import com.buoyancy.common.model.entity.Suborder
 import com.buoyancy.common.model.enums.CacheNames
 import com.buoyancy.common.model.enums.SuborderStatus
@@ -32,6 +31,8 @@ class SuborderServiceImpl : SuborderService {
 
     private val log = KotlinLogging.logger {}
     @Autowired
+    private lateinit var self: SuborderServiceImpl
+    @Autowired
     private lateinit var repo: SuborderRepository
     @Autowired
     private lateinit var kafka: SuborderTemplate
@@ -46,13 +47,13 @@ class SuborderServiceImpl : SuborderService {
     }
 
     @Cacheable(CacheNames.SUBORDER_COLLECTION, "{#restaurantId, #pageable}")
-    override fun getSubordersByRestaurantId(restaurantId: UUID, pageable: Pageable): Page<SuborderDto> {
-        return repo.findByRestaurantId(restaurantId, pageable).map { mapper.toDto(it) }
+    override fun getSubordersByRestaurantIdAndStatus(restaurantId: UUID, status: SuborderStatus, pageable: Pageable): Page<SuborderDto> {
+        return repo.findByRestaurantIdAndStatus(restaurantId, status, pageable).map { mapper.toDto(it) }
     }
 
-    @Cacheable(CacheNames.SUBORDER_COLLECTION, "{#restaurant.id, #pageable}")
-    override fun getSubordersByRestaurant(restaurant: Restaurant, pageable: Pageable): Page<SuborderDto> {
-        return repo.findByRestaurant(restaurant, pageable).map { mapper.toDto(it) }
+    @Cacheable(CacheNames.SUBORDER_COLLECTION, "{#restaurantId, #pageable}")
+    override fun getSubordersByRestaurantId(restaurantId: UUID, pageable: Pageable): Page<SuborderDto> {
+        return repo.findByRestaurantId(restaurantId, pageable).map { mapper.toDto(it) }
     }
 
     override fun markSuborderAsPreparing(id: UUID): SuborderDto {
@@ -105,10 +106,10 @@ class SuborderServiceImpl : SuborderService {
 
     @Cacheable(CacheNames.SUBORDERS)
     override fun getSuborder(id: UUID): SuborderDto {
-        return mapper.toDto(getSuborderEntity(id))
+        return mapper.toDto(self.getSuborderEntity(id))
     }
 
-    private fun getSuborderEntity(id: UUID): Suborder {
+    override fun getSuborderEntity(id: UUID): Suborder {
         return repo.findById(id).orElseThrow {
             NotFoundException(messages.get("exceptions.not-found.suborder", id))
         }
@@ -120,15 +121,15 @@ class SuborderServiceImpl : SuborderService {
     )
     @Transactional
     private fun updateStatus(id: UUID, status: SuborderStatus): SuborderDto {
-        val suborder = getSuborderEntity(id)
+        val suborder = self.getSuborderEntity(id)
         suborder.status = status
         kafka.sendSuborderEvent(SuborderEvent(status, suborder.id!!))
+        log.info { "Changed status of suborder ${suborder.id} to $status" }
         return mapper.toDto(repo.save(suborder))
     }
 
     private fun updateStatus(suborder: Suborder, status: SuborderStatus): SuborderDto {
         if (suborder.id == null) throw NotFoundException(messages.get("exceptions.not-found.suborder"))
-        return updateStatus(suborder.id!!, status)
-        log.info { "Changed status of suborder ${suborder.id} to $status" }
+        return self.updateStatus(suborder.id!!, status)
     }
 }

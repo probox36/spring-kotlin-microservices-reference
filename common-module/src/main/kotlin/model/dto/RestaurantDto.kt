@@ -3,6 +3,7 @@ package com.buoyancy.common.model.dto
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import org.jetbrains.annotations.NotNull
+import java.io.Serializable
 import java.util.*
 
 data class RestaurantDto (
@@ -13,4 +14,4 @@ data class RestaurantDto (
     @Email val email: String,
     @NotNull val cuisineType: String,
     val operating: Boolean? = true
-)
+): Serializable

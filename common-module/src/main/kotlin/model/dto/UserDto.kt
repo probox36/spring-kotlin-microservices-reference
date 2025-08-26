@@ -3,6 +3,7 @@ package com.buoyancy.common.model.dto
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import org.jetbrains.annotations.NotNull
+import java.io.Serializable
 import java.util.*
 
 data class UserDto (
@@ -10,4 +11,4 @@ data class UserDto (
     @NotBlank var name: String,
     @NotBlank var lastName: String,
     @Email var email: String
-)
+): Serializable

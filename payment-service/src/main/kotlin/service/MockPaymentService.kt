@@ -14,6 +14,7 @@ interface MockPaymentService {
     fun createPayment(payment: PaymentDto): PaymentDto
     fun createPayment(orderId: UUID): PaymentDto
     fun getPayment(orderId: UUID): PaymentDto
+    fun getPaymentEntity(paymentId: UUID): Payment
     fun getPayments(pageable: Pageable): Page<PaymentDto>
     fun getPaymentByOrderId(orderId: UUID): PaymentDto
     fun updateStatus(paymentId: UUID, status: PaymentStatus, errorReason: String? = null): PaymentDto

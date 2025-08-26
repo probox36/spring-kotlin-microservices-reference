@@ -5,6 +5,7 @@ import com.buoyancy.common.model.dto.messaging.events.PaymentEvent
 import com.buoyancy.common.model.enums.GroupIds
 import com.buoyancy.common.model.enums.OrderStatus
 import com.buoyancy.common.model.enums.PaymentStatus
+import com.buoyancy.common.model.enums.PaymentStatus.*
 import com.buoyancy.common.model.enums.TopicNames
 import com.buoyancy.order.messaging.producer.OrderTemplate
 import com.buoyancy.order.service.impl.OrderServiceImpl
@@ -31,8 +32,8 @@ class PaymentListener() {
         val event = eventRecord.value()
 
         when (event.type) {
-            PaymentStatus.SUCCESS -> kafka.sendOrderEvent(OrderEvent(event, OrderStatus.PAID))
-            PaymentStatus.EXPIRED -> {
+            SUCCESS -> kafka.sendOrderEvent(OrderEvent(event, OrderStatus.PAID))
+            EXPIRED -> {
                 service.cancelOrder(event.orderId)
                 kafka.sendOrderEvent(OrderEvent(event, OrderStatus.CANCELLED))
             }
