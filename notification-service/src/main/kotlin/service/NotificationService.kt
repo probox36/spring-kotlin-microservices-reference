@@ -1,11 +1,13 @@
 package com.buoyancy.notification.service
 
 import com.buoyancy.common.model.entity.Product
+import com.buoyancy.common.model.enums.CacheNames
 import com.buoyancy.common.model.interfaces.OrderDetails
 import com.buoyancy.common.repository.SuborderRepository
 import com.buoyancy.common.utils.get
 import jakarta.transaction.Transactional
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.context.MessageSource
 import org.springframework.stereotype.Service
 import java.util.*
@@ -20,6 +22,7 @@ class NotificationService {
     @Autowired
     private lateinit var email: MailService
 
+    @Cacheable(CacheNames.SUBORDERS)
     private fun getSubordersByOrderId(orderId: UUID) = repo.findByOrderId(orderId)
     private fun getItemListString(items: List<Product>): String = items.joinToString(",\n") { it.name }
 

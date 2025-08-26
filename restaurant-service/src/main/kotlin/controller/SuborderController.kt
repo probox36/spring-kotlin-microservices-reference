@@ -2,8 +2,7 @@ package com.buoyancy.restaurant.controller
 
 import com.buoyancy.common.model.dto.SuborderDto
 import com.buoyancy.common.model.dto.rest.MessageDto
-import com.buoyancy.common.model.entity.Suborder
-import com.buoyancy.common.model.mapper.SuborderMapper
+import com.buoyancy.common.model.enums.SuborderStatus
 import com.buoyancy.common.utils.get
 import com.buoyancy.restaurant.service.SuborderService
 import org.springframework.beans.factory.annotation.Autowired
@@ -21,12 +20,10 @@ class SuborderController {
     lateinit var service: SuborderService
     @Autowired
     private lateinit var messages : MessageSource
-    @Autowired
-    private lateinit var mapper: SuborderMapper
 
     @GetMapping()
     fun getSuborders(pageable: Pageable): Page<SuborderDto> {
-        return service.getSuborders(pageable).map { mapper.toDto(it) }
+        return service.getSuborders(pageable)
     }
 
     @PostMapping("/{id}/accept")
@@ -51,12 +48,13 @@ class SuborderController {
     }
 
     @GetMapping("/restaurant/{restaurantId}")
-    fun getSubordersByRestaurant(@PathVariable restaurantId: UUID, pageable: Pageable): Page<SuborderDto> {
-        return service.getSubordersByRestaurant(restaurantId, pageable).map { mapper.toDto(it) }
+    fun getSubordersByRestaurant(@PathVariable restaurantId: UUID, @RequestParam status: SuborderStatus?, pageable: Pageable): Page<SuborderDto> {
+        return status?.let { service.getSubordersByRestaurantIdAndStatus(restaurantId, it, pageable) }
+            ?: service.getSubordersByRestaurantId(restaurantId, pageable)
     }
 
     @GetMapping("/{id}")
     fun getSuborder(@PathVariable id: UUID): SuborderDto {
-        return mapper.toDto(service.getSuborder(id))
+        return service.getSuborder(id)
     }
 }

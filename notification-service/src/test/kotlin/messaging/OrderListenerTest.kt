@@ -4,7 +4,7 @@ import com.buoyancy.common.model.dto.messaging.events.OrderEvent
 import com.buoyancy.common.model.enums.OrderStatus
 import com.buoyancy.common.model.enums.TopicNames
 import com.buoyancy.notification.NotificationServiceApplication
-import com.buoyancy.notification.messaging.config.LoggingErrorHandler
+import com.buoyancy.common.config.messaging.LoggingErrorHandler
 import com.buoyancy.notification.messaging.consumer.OrderListener
 import com.buoyancy.notification.service.MailService
 import org.apache.kafka.clients.consumer.ConsumerRecord

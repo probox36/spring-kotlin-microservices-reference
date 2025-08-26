@@ -1,5 +1,6 @@
 package com.buoyancy.payment.service
 
+import com.buoyancy.common.model.dto.PaymentDto
 import com.buoyancy.common.model.entity.Payment
 import com.buoyancy.common.model.enums.PaymentStatus
 import org.springframework.data.domain.Page
@@ -7,14 +8,15 @@ import org.springframework.data.domain.Pageable
 import java.util.*
 
 interface MockPaymentService {
-    fun pay(orderId: UUID, value: Long): Payment
-    fun payByPaymentId(paymentId: UUID, value: Long): Payment
-    fun cancel(orderId: UUID)
-    fun createPayment(payment: Payment): Payment
-    fun createPayment(orderId: UUID): Payment
-    fun getPayment(orderId: UUID): Payment
-    fun getPayments(pageable: Pageable): Page<Payment>
-    fun getPaymentByOrderId(orderId: UUID): Payment
-    fun updateStatus(paymentId: UUID, status: PaymentStatus, errorReason: String? = null): Payment
+    fun pay(orderId: UUID, value: Long): PaymentDto
+    fun payByPaymentId(paymentId: UUID, value: Long): PaymentDto
+    fun cancel(orderId: UUID): PaymentDto
+    fun createPayment(payment: PaymentDto): PaymentDto
+    fun createPayment(orderId: UUID): PaymentDto
+    fun getPayment(orderId: UUID): PaymentDto
+    fun getPaymentEntity(paymentId: UUID): Payment
+    fun getPayments(pageable: Pageable): Page<PaymentDto>
+    fun getPaymentByOrderId(orderId: UUID): PaymentDto
+    fun updateStatus(paymentId: UUID, status: PaymentStatus, errorReason: String? = null): PaymentDto
     fun checkForExpiredPayment()
 }

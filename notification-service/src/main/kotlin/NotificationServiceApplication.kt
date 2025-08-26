@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 
 @EnableJpaRepositories("com.buoyancy.common.repository")
 @EntityScan("com.buoyancy.common.model")
-@ComponentScan("com.buoyancy.common.model", "com.buoyancy.common.exceptions", "com.buoyancy.notification")
+@ComponentScan("com.buoyancy.common", "com.buoyancy.notification")
 @SpringBootApplication
 class NotificationServiceApplication
 

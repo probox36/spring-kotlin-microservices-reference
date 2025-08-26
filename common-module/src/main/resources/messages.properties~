@@ -13,7 +13,6 @@ rest.response.suborders.postponed=Suborder {0} was marked as postponed
 rest.response.suborders.finished=Suborder {0} was marked as finished
 rest.response.orders.cancelled=Order {0} was cancelled
 rest.response.orders.updated=Order {0} was successfully updated
-rest.response.orders.created=Order {0} created
 rest.response.payment.cancelled=Payment {0} was cancelled
 rest.response.payment.success=Payment successful
 rest.response.payment.status-updated=Payment {0} status was updated to {1}

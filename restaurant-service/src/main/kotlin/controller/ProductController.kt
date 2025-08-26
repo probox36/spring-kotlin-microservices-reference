@@ -22,8 +22,6 @@ class ProductController {
     @Autowired
     private lateinit var service: ProductService
     @Autowired
-    private lateinit var mapper: ProductMapper
-    @Autowired
     private lateinit var messages : MessageSource
 
     private val updatedMessage by lazy { messages.get("rest.response.resource.updated") }
@@ -32,14 +30,14 @@ class ProductController {
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
     fun createProduct(@Valid @RequestBody productDto: ProductDto) : ResourceDto<ProductDto> {
-        val created = service.createProduct(mapper.toEntity(productDto))
-        return ResourceDto(201, createdMessage, mapper.toDto(created))
+        val created = service.createProduct(productDto)
+        return ResourceDto(201, createdMessage, created)
     }
 
     @PostMapping("/{id}/update")
     fun updateProduct(@PathVariable id: UUID, @Valid @RequestBody productDto: ProductDto) : ResourceDto<ProductDto> {
-        val updated = service.updateProduct(id, mapper.toEntity(productDto))
-        return ResourceDto(200, updatedMessage, mapper.toDto(updated))
+        val updated = service.updateProduct(id, productDto)
+        return ResourceDto(200, updatedMessage, updated)
     }
 
     @DeleteMapping("/{id}/delete")
@@ -51,31 +49,28 @@ class ProductController {
 
     @GetMapping("/{id}")
     fun getProduct(@PathVariable id: UUID) : ProductDto {
-        val product = service.getProduct(id)
-        return mapper.toDto(product)
+        return service.getProduct(id)
     }
 
     @GetMapping()
     fun getProducts(pageable: Pageable) : Page<ProductDto> {
-        val products = service.getProducts(pageable)
-        return products.map { mapper.toDto(it) }
+        return service.getProducts(pageable)
     }
 
     @GetMapping("/restaurant/{restaurantId}")
     fun getProductsByRestaurant(@PathVariable restaurantId: UUID, pageable: Pageable): Page<ProductDto> {
-        val products = service.getProductsByRestaurant(restaurantId, pageable)
-        return products.map { mapper.toDto(it) }
+        return service.getProductsByRestaurant(restaurantId, pageable)
     }
 
     @PostMapping("/{id}/updateName")
     fun updateName(@PathVariable id: UUID, @RequestParam name: String) : ResourceDto<ProductDto> {
         val updated = service.updateName(id, name)
-        return ResourceDto(200, updatedMessage, mapper.toDto(updated))
+        return ResourceDto(200, updatedMessage, updated)
     }
 
     @PostMapping("/{id}/updatePrice")
     fun updatePrice(@PathVariable id: UUID, @RequestParam price: Long) : ResourceDto<ProductDto> {
         val updated = service.updatePrice(id, price)
-        return ResourceDto(200, updatedMessage, mapper.toDto(updated))
+        return ResourceDto(200, updatedMessage, updated)
     }
 }

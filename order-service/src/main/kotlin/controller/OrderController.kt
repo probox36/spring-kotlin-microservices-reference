@@ -22,16 +22,14 @@ class OrderController {
     @Autowired
     private lateinit var service: OrderService
     @Autowired
-    private lateinit var mapper: OrderMapper
-    @Autowired
     private lateinit var messages : MessageSource
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/create")
-    fun createOrder(@Valid @RequestBody orderDto: OrderDto): OrderDto {
-        val order = mapper.toEntity(orderDto)
-        val created = service.createOrder(order)
-        return mapper.toDto(created)
+    fun createOrder(@Valid @RequestBody orderDto: OrderDto): ResourceDto<OrderDto> {
+        val created = service.createOrder(orderDto)
+        val message = messages.get("rest.response.orders.created", created.id!!)
+        return ResourceDto(201, message, created)
     }
 
     @GetMapping("/{id}/status")
@@ -48,16 +46,14 @@ class OrderController {
 
     @GetMapping("/{id}")
     fun getOrder(@PathVariable id: UUID): OrderDto {
-        val order = service.getOrder(id)
-        return mapper.toDto(order)
+        return service.getOrder(id)
     }
 
     @PostMapping("/{id}/update")
     fun updateOrder(@Valid @RequestBody orderDto: OrderDto): ResourceDto<OrderDto> {
-        val order = mapper.toEntity(orderDto)
-        order.id?.let { service.updateOrder(it, order) }
+        val updated = orderDto.id?.let { service.updateOrder(it, orderDto) }
             ?: throw BadRequestException(messages.get("exceptions.bad-request.order.null-id"))
         val message = messages.get("rest.response.orders.updated")
-        return ResourceDto(200, message, mapper.toDto(order))
+        return ResourceDto(200, message, updated)
     }
 }

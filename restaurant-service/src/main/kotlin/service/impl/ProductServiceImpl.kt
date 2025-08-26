@@ -1,14 +1,24 @@
 package com.buoyancy.restaurant.service.impl
 
+import com.buoyancy.common.exceptions.BadRequestException
 import com.buoyancy.common.exceptions.ConflictException
 import com.buoyancy.common.exceptions.NotFoundException
+import com.buoyancy.common.model.dto.ProductDto
 import com.buoyancy.common.model.entity.Product
+import com.buoyancy.common.model.enums.CacheNames
+import com.buoyancy.common.model.mapper.ProductMapper
 import com.buoyancy.common.repository.ProductRepository
 import com.buoyancy.common.utils.get
 import com.buoyancy.restaurant.service.ProductService
 import io.github.oshai.kotlinlogging.KotlinLogging
+import jakarta.persistence.EntityNotFoundException
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.CachePut
+import org.springframework.cache.annotation.Cacheable
+import org.springframework.cache.annotation.Caching
 import org.springframework.context.MessageSource
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -20,59 +30,103 @@ class ProductServiceImpl : ProductService {
 
     private val log = KotlinLogging.logger {}
     @Autowired
+    private lateinit var self: ProductService
+    @Autowired
     private lateinit var repo: ProductRepository
     @Autowired
     private lateinit var messages: MessageSource
+    @Autowired
+    private lateinit var mapper: ProductMapper
 
+    @Caching(
+        put = [CachePut(CacheNames.PRODUCTS, "#product.id")],
+        evict = [CacheEvict(CacheNames.PRODUCT_COLLECTION, allEntries = true)]
+    )
     @Transactional
-    override fun createProduct(product: Product): Product {
-        if (product.id != null && repo.existsById(product.id!!)) {
-            val conflictMessage = messages.get("exceptions.conflict.product", product.id!!)
+    override fun createProduct(dto: ProductDto): ProductDto {
+        if (dto.id != null && repo.existsById(dto.id!!)) {
+            val conflictMessage = messages.get("exceptions.conflict.product", dto.id!!)
             throw ConflictException(conflictMessage)
         }
-        log.info { "Creating product $product" }
-        return repo.save(product)
+        val product = mapper.toEntity(dto)
+        val saved = withHandling { repo.save(product) }
+        log.info { "Created product $saved" }
+        return mapper.toDto(saved)
     }
 
-    override fun updateProduct(id: UUID, product: Product): Product {
+    @Caching(
+        put = [CachePut(CacheNames.PRODUCTS, "#id")],
+        evict = [CacheEvict(CacheNames.PRODUCT_COLLECTION, allEntries = true)]
+    )
+    override fun updateProduct(id: UUID, dto: ProductDto): ProductDto {
+        val product = mapper.toEntity(dto)
         product.id = id
-        repo.save(product)
-        log.info { "Updated product $product" }
-        return product
+        val updated = withHandling { repo.save(product) }
+        log.info { "Updated product $id to $updated" }
+        return mapper.toDto(updated)
     }
 
+    @Caching(
+        evict = [CacheEvict(CacheNames.PRODUCTS, "#id"),
+            CacheEvict(CacheNames.PRODUCT_COLLECTION, allEntries = true)]
+    )
     override fun deleteProduct(id: UUID) {
         log.info { "Deleting product $id" }
         repo.deleteById(id)
     }
 
-    override fun getProduct(id: UUID): Product {
+    @Cacheable(CacheNames.PRODUCTS)
+    override fun getProduct(id: UUID): ProductDto {
+        return mapper.toDto(self.getProductEntity(id))
+    }
+
+    override fun getProductEntity(id: UUID): Product {
         return repo.findById(id).orElseThrow {
             NotFoundException(messages.get("exceptions.not-found.product", id))
         }
     }
 
-    override fun getProducts(pageable: Pageable): Page<Product> {
-        return repo.findAll(pageable)
+    @Cacheable(CacheNames.PRODUCT_COLLECTION)
+    override fun getProducts(pageable: Pageable): Page<ProductDto> {
+        return repo.findAll(pageable).map { mapper.toDto(it) }
     }
 
-    override fun getProductsByRestaurant(restaurantId: UUID, pageable: Pageable): Page<Product> {
-        return repo.findByRestaurantId(restaurantId, pageable)
+    @Cacheable(CacheNames.PRODUCT_COLLECTION, "{#restaurantId, #pageable}")
+    override fun getProductsByRestaurant(restaurantId: UUID, pageable: Pageable): Page<ProductDto> {
+        return repo.findByRestaurantId(restaurantId, pageable).map { mapper.toDto(it) }
     }
 
-    override fun updateName(id: UUID, name: String) : Product {
-        val product = getProduct(id)
+    @Caching(
+        put = [CachePut(CacheNames.PRODUCTS, "#id")],
+        evict = [CacheEvict(CacheNames.PRODUCT_COLLECTION, allEntries = true)]
+    )
+    override fun updateName(id: UUID, name: String) : ProductDto {
+        val product = self.getProductEntity(id)
         product.name = name
         repo.save(product)
         log.info { "Updated name of product ${product.id} from ${product.name} to $name" }
-        return product
+        return mapper.toDto(product)
     }
 
-    override fun updatePrice(id: UUID, price: Long): Product {
-        val product = getProduct(id)
+    @Caching(
+        put = [CachePut(CacheNames.PRODUCTS, "#id")],
+        evict = [CacheEvict(CacheNames.PRODUCT_COLLECTION, allEntries = true)]
+    )
+    override fun updatePrice(id: UUID, price: Long): ProductDto {
+        val product = self.getProductEntity(id)
         product.price = price
         repo.save(product)
         log.info { "Updated price of product ${product.id} from ${product.price} to $price" }
-        return product
+        return mapper.toDto(product)
+    }
+
+    private fun <T> withHandling(block: () -> T): T {
+        return try {
+            block()
+        } catch (_: EntityNotFoundException) {
+            throw NotFoundException(messages.get("exceptions.psql.foreign-key"))
+        } catch (_: DataIntegrityViolationException) {
+            throw BadRequestException(messages.get("exceptions.psql.integrity"))
+        }
     }
 }
