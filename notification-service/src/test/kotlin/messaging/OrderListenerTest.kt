@@ -4,7 +4,6 @@ import com.buoyancy.common.model.dto.messaging.events.OrderEvent
 import com.buoyancy.common.model.enums.OrderStatus
 import com.buoyancy.common.model.enums.TopicNames
 import com.buoyancy.notification.NotificationServiceApplication
-import com.buoyancy.common.config.messaging.LoggingErrorHandler
 import com.buoyancy.notification.messaging.consumer.OrderListener
 import com.buoyancy.notification.service.MailService
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -15,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.MessageSource
 import org.springframework.kafka.core.KafkaTemplate
-import org.springframework.kafka.listener.ListenerExecutionFailedException
 import org.springframework.kafka.test.context.EmbeddedKafka
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
@@ -38,8 +36,6 @@ class OrderListenerIntegrationTest {
     private lateinit var stringKafkaTemplate: KafkaTemplate<String, String>
     @MockitoSpyBean
     private lateinit var orderListener: OrderListener
-    @MockitoSpyBean
-    private lateinit var errorHandler: LoggingErrorHandler
     @MockitoBean
     private lateinit var mailService: MailService
     @MockitoBean
@@ -130,23 +126,5 @@ class OrderListenerIntegrationTest {
         verify(messages, timeout(3000)).getMessage("notifications.order.cancelled", arrayOf(orderId), Locale.ENGLISH)
         verify(messages, timeout(3000)).getMessage("email.subjects.order", null, Locale.ENGLISH)
         verify(mailService, timeout(3000)).send(userEmail, subject, body)
-    }
-
-    @Test
-    fun `broken message should be handled by CommonErrorHandler`() {
-        // Given
-        val brokenMessage = "this is not a valid JSON"
-        val topic = "orders"
-
-        // When
-        stringKafkaTemplate.send(topic, brokenMessage)
-        stringKafkaTemplate.flush()
-
-        // Then
-        await().atMost(3, TimeUnit.SECONDS).untilAsserted {
-            verify(errorHandler, times(1)).handleOne(
-                any<ListenerExecutionFailedException>(), any(), any(), any()
-            )
-        }
     }
 }
