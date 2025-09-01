@@ -24,8 +24,6 @@ class RestaurantController {
     @Autowired
     private lateinit var service: RestaurantService
     @Autowired
-    private lateinit var mapper: RestaurantMapper
-    @Autowired
     private lateinit var messages : MessageSource
 
     private val updatedMessage by lazy { messages.get("rest.response.resource.updated") }

@@ -4,8 +4,6 @@ import com.buoyancy.common.model.dto.RestaurantDto
 import com.buoyancy.common.model.dto.rest.EmailUpdateDto
 import com.buoyancy.common.model.dto.rest.MessageDto
 import com.buoyancy.common.model.dto.rest.ResourceDto
-import com.buoyancy.common.model.entity.Restaurant
-import com.buoyancy.common.model.mapper.RestaurantMapper
 import com.buoyancy.common.utils.get
 import com.buoyancy.restaurant.service.RestaurantService
 import jakarta.validation.Valid
@@ -18,7 +16,6 @@ import org.springframework.web.bind.annotation.*
 import java.util.*
 
 @RestController
-@RequestMapping("/restaurants")
 class RestaurantController {
 
     @Autowired

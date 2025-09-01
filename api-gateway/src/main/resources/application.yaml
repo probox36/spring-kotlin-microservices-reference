@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: api-gateway
+  config:
+    import: classpath:application-common.yaml
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      mvc:
+        routes:
+
+          - id: order-service-route
+            uri: lb://foodtech-order-service
+            predicates:
+              - Path=/api/orders/**
+            filters:
+              - StripPrefix=2
+
+          - id: payment-service-route
+            uri: lb://foodtech-payment-service
+            predicates:
+              - Path=/api/payments/**
+            filters:
+              - StripPrefix=2
+
+          - id: restaurant-service-route
+            uri: lb://foodtech-restaurant-service
+            predicates:
+              - Path=/api/restaurants/**
+            filters:
+              - StripPrefix=2
+
+---
+# ^^^ Needed to override server.port property from common-module
+
+server:
+  port: 8085

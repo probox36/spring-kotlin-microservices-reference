@@ -1,10 +1,9 @@
 package com.buoyancy.payment.controller
 
-import com.buoyancy.common.model.dto.rest.MessageDto
 import com.buoyancy.common.model.dto.PaymentDto
+import com.buoyancy.common.model.dto.rest.MessageDto
 import com.buoyancy.common.model.dto.rest.ResourceDto
 import com.buoyancy.common.model.enums.PaymentStatus
-import com.buoyancy.common.model.mapper.PaymentMapper
 import com.buoyancy.common.utils.get
 import com.buoyancy.payment.service.impl.MockPaymentServiceImpl
 import jakarta.validation.Valid
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.*
 import java.util.*
 
 @RestController
-@RequestMapping("/payments")
 class PaymentController {
 
     @Autowired

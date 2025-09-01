@@ -1,11 +1,8 @@
-server:
-  port: 8082
-
 spring:
   config:
     import: classpath:application-common.yaml
   application:
-    name: foodtech-order-service
+    name: foodtech-payment-service
   kafka:
     consumer:
       group-id: payment-group

@@ -62,7 +62,7 @@ class SuborderServiceImpl : SuborderService {
             return updateStatus(id, PREPARING)
         } else {
             throw BadRequestException(
-                messages.get("exceptions.bad-request.order.status-change", status!!, PREPARING)
+                messages.get("exceptions.bad-request.order.status-change", status, PREPARING)
             )
         }
     }
@@ -78,7 +78,7 @@ class SuborderServiceImpl : SuborderService {
             return updateStatus(id, READY)
         } else {
             throw BadRequestException(
-                messages.get("exceptions.bad-request.order.status-change", status!!, READY)
+                messages.get("exceptions.bad-request.order.status-change", status, READY)
             )
         }
     }
@@ -94,7 +94,7 @@ class SuborderServiceImpl : SuborderService {
             return updateStatus(id, POSTPONED)
         } else {
             throw BadRequestException(
-                messages.get("exceptions.bad-request.order.status-change", status!!, POSTPONED)
+                messages.get("exceptions.bad-request.order.status-change", status, POSTPONED)
             )
         }
     }

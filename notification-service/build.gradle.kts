@@ -1,9 +1,7 @@
 group = "${rootProject.group}.notification"
 
 dependencies {
-    implementation(project(":common-module")) {
-        exclude(group = "org.springframework.boot", module = "spring-boot-starter-web")
-    }
+    implementation(project(":common-module"))
     implementation("org.springframework.boot:spring-boot-starter-mail:3.5.3")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.springframework.kafka:spring-kafka")

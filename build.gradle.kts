@@ -28,19 +28,17 @@ subprojects {
     apply(plugin = "org.springframework.boot")
     apply(plugin = "io.spring.dependency-management")
 
-//    extra["springCloudVersion"] = "2025.0.0-RC1"
-
     configure<JavaPluginExtension> {
         toolchain {
             languageVersion.set(JavaLanguageVersion.of(21))
         }
     }
 
+    extra["springCloudVersion"] = "2025.0.0"
+
     configure<DependencyManagementExtension> {
-
         imports {
-            // mavenBom("org.springframework.cloud:spring-cloud-dependencies:${property("springCloudVersion")}")
-
+            mavenBom("org.springframework.cloud:spring-cloud-dependencies:${property("springCloudVersion")}")
             applyMavenExclusions(false) // turns off maven exclusions processing for spring dependency management plugin
             // which dramatically speeds up the build process (and gets rid of slow detachedConfiguration tasks)
         }
@@ -59,17 +57,11 @@ subprojects {
     val implementation by configurations
 
     dependencies {
-//        implementation(platform("org.springframework.cloud:spring-cloud-dependencies:${property("springCloudVersion")}"))
         implementation("org.jetbrains.kotlin:kotlin-reflect")
         implementation("org.mapstruct:mapstruct:1.6.3")
-        implementation("org.springframework.boot:spring-boot-starter-validation")
         implementation("io.github.oshai:kotlin-logging-jvm:7.0.7")
         implementation("ch.qos.logback:logback-classic:1.5.18")
-        implementation("org.springframework.boot:spring-boot-starter-data-redis")
         implementation("org.springframework.boot:spring-boot-starter-cache")
-//        implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j")
-//        implementation("org.springframework.cloud:spring-cloud-starter-gateway-server-webmvc")
-//        implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
         kapt("org.mapstruct:mapstruct-processor:1.6.3")
     }
 

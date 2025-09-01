@@ -72,7 +72,7 @@ class SuborderServiceImpl : SuborderService {
         repo.save(suborder)
         afterCommit {
             kafka.sendSuborderEvent(SuborderEvent(status, id))
-            log.debug { "Changed status of suborder $id to $status" }
+            log.info { "Changed status of suborder $id to $status" }
         }
         return mapper.toDto(suborder)
     }

@@ -5,7 +5,6 @@ import com.buoyancy.common.model.dto.OrderDto
 import com.buoyancy.common.model.dto.rest.MessageDto
 import com.buoyancy.common.model.dto.rest.ResourceDto
 import com.buoyancy.common.model.enums.OrderStatus
-import com.buoyancy.common.model.mapper.OrderMapper
 import com.buoyancy.common.utils.get
 import com.buoyancy.order.service.OrderService
 import jakarta.validation.Valid
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.*
 import java.util.*
 
 @RestController
-@RequestMapping("/orders")
 class OrderController {
 
     @Autowired
@@ -56,4 +54,7 @@ class OrderController {
         val message = messages.get("rest.response.orders.updated")
         return ResourceDto(200, message, updated)
     }
+
+    // TODO: Исправить кэширование (инвалидация кэша orders при обновлении статуса через методы сервиса) (прим.: а это точно нужно?)
+    // TODO: Проверить, почему не меняется статус заказа при изменении статуса подзаказов
 }
