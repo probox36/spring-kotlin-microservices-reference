@@ -47,7 +47,7 @@ class SuborderServiceImpl : SuborderService {
     private lateinit var orderService: OrderService
 
     @Transactional
-    @CachePut(CacheNames.SUBORDERS, "#suborder.id")
+    @CachePut(CacheNames.SUBORDERS, key = "#result.id")
     override fun createSuborder(suborderDto: SuborderDto): SuborderDto {
         if (suborderDto.id != null && repo.existsById(suborderDto.id!!)) {
             throw ConflictException(messages.get("exceptions.conflict.suborder", suborderDto.id!!))
@@ -64,7 +64,7 @@ class SuborderServiceImpl : SuborderService {
         return mapper.toDto(saved)
     }
 
-    @CachePut(CacheNames.SUBORDERS, "#id")
+    @CachePut(CacheNames.SUBORDERS, key = "#id")
     @Transactional
     override fun updateStatus(id: UUID, status: SuborderStatus): SuborderDto {
         val suborder = self.getSuborderEntity(id)

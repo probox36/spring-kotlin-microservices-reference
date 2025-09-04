@@ -16,6 +16,7 @@ interface MockPaymentService {
     fun getPayment(orderId: UUID): PaymentDto
     fun getPaymentEntity(paymentId: UUID): Payment
     fun getPayments(pageable: Pageable): Page<PaymentDto>
+    fun getPaymentByOrderIdAndStatus(orderId: UUID, status: PaymentStatus): PaymentDto
     fun getPaymentByOrderId(orderId: UUID): PaymentDto
     fun updateStatus(paymentId: UUID, status: PaymentStatus, errorReason: String? = null): PaymentDto
     fun checkForExpiredPayment()

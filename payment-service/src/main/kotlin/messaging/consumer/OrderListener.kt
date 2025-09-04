@@ -2,9 +2,9 @@ package com.buoyancy.payment.messaging.consumer
 
 import com.buoyancy.common.model.dto.messaging.events.OrderEvent
 import com.buoyancy.common.model.enums.GroupIds
-import com.buoyancy.common.model.enums.OrderStatus
+import com.buoyancy.common.model.enums.OrderStatus.*
+import com.buoyancy.common.model.enums.PaymentStatus
 import com.buoyancy.common.model.enums.TopicNames
-import com.buoyancy.common.repository.PaymentRepository
 import com.buoyancy.payment.service.impl.MockPaymentServiceImpl
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -19,8 +19,6 @@ class OrderListener {
 
     @Autowired
     private lateinit var service: MockPaymentServiceImpl
-    @Autowired
-    private lateinit var repo: PaymentRepository
 
     @KafkaListener(topics = [TopicNames.ORDER], groupId = GroupIds.PAYMENT_GROUP)
     fun receiveOrderRecord(eventRecord: ConsumerRecord<String, OrderEvent>) {
@@ -30,10 +28,11 @@ class OrderListener {
         val orderId = event.orderId
 
         when (event.type) {
-            OrderStatus.CREATED -> service.createPayment(orderId)
-            OrderStatus.CANCELLED -> {
+            CREATED -> service.createPayment(orderId)
+            CANCELLED -> {
                 val payment = service.getPaymentByOrderId(orderId)
-                service.cancel(payment.id!!)
+                if (payment.status != PaymentStatus.EXPIRED)
+                    service.cancel(payment.id!!)
             }
             else -> {}
         }

@@ -51,10 +51,7 @@ class OrderController {
     fun updateOrder(@Valid @RequestBody orderDto: OrderDto): ResourceDto<OrderDto> {
         val updated = orderDto.id?.let { service.updateOrder(it, orderDto) }
             ?: throw BadRequestException(messages.get("exceptions.bad-request.order.null-id"))
-        val message = messages.get("rest.response.orders.updated")
+        val message = messages.get("rest.response.orders.updated", orderDto.id!!)
         return ResourceDto(200, message, updated)
     }
-
-    // TODO: Исправить кэширование (инвалидация кэша orders при обновлении статуса через методы сервиса) (прим.: а это точно нужно?)
-    // TODO: Проверить, почему не меняется статус заказа при изменении статуса подзаказов
 }

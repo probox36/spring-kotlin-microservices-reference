@@ -32,11 +32,8 @@ class PaymentListener() {
         val event = eventRecord.value()
 
         when (event.type) {
-            SUCCESS -> kafka.sendOrderEvent(OrderEvent(event, OrderStatus.PAID))
-            EXPIRED -> {
-                service.cancelOrder(event.orderId)
-                kafka.sendOrderEvent(OrderEvent(event, OrderStatus.CANCELLED))
-            }
+            SUCCESS -> service.updateStatus(event.orderId, OrderStatus.PAID)
+            EXPIRED -> service.cancelOrder(event.orderId)
             else -> {}
         }
     }

@@ -52,7 +52,7 @@ class MockPaymentServiceImpl: MockPaymentService {
     private lateinit var mapper: PaymentMapper
 
     @Caching(
-        put = [CachePut(CacheNames.PAYMENTS, "#paymentId")],
+        put = [CachePut(CacheNames.PAYMENTS, key = "#paymentId")],
         evict = [CacheEvict(CacheNames.PAYMENT_COLLECTION, allEntries = true)]
     )
     @Transactional
@@ -77,11 +77,16 @@ class MockPaymentServiceImpl: MockPaymentService {
     }
 
     override fun cancel(paymentId: UUID): PaymentDto {
+        val status = self.getPaymentEntity(paymentId).status
+        if (status != PaymentStatus.PENDING) {
+            val message = messages.get("exceptions.bad-request.payment.status-change", status, PaymentStatus.EXPIRED)
+            throw BadRequestException(message)
+        }
         return self.updateStatus(paymentId, PaymentStatus.EXPIRED)
     }
 
     @Caching(
-        put = [CachePut(CacheNames.PAYMENTS, "#payment.id")],
+        put = [CachePut(CacheNames.PAYMENTS, key = "#result.id")],
         evict = [CacheEvict(CacheNames.PAYMENT_COLLECTION, allEntries = true)]
     )
     override fun createPayment(dto: PaymentDto): PaymentDto {
@@ -93,13 +98,13 @@ class MockPaymentServiceImpl: MockPaymentService {
     }
 
     @Caching(
-        put = [CachePut(CacheNames.PAYMENTS, "#result.id")],
+        put = [CachePut(CacheNames.PAYMENTS, key = "#result.id")],
         evict = [CacheEvict(CacheNames.PAYMENT_COLLECTION, allEntries = true)]
     )
     @Transactional
     override fun createPayment(orderId: UUID): PaymentDto {
         val order = orderRepo.findById(orderId).orElseThrow {
-            NotFoundException(messages.get("rest.exceptions.order-not-found", orderId))
+            NotFoundException(messages.get("exceptions.not-found.order", orderId))
         }
         val value = calculateValue(order)
         return self.createPayment(PaymentDto(
@@ -121,7 +126,7 @@ class MockPaymentServiceImpl: MockPaymentService {
     }
 
     @Caching(
-        put = [CachePut(CacheNames.PAYMENTS, "#paymentId")],
+        put = [CachePut(CacheNames.PAYMENTS, key = "#paymentId")],
         evict = [CacheEvict(CacheNames.PAYMENT_COLLECTION, allEntries = true)]
     )
     @Transactional
@@ -151,9 +156,15 @@ class MockPaymentServiceImpl: MockPaymentService {
         return mapper.toDto(updated)
     }
 
+    @Cacheable(CacheNames.PAYMENTS, key = "'by-order-id-and-status:' + #orderId")
+    override fun getPaymentByOrderIdAndStatus(orderId: UUID, status: PaymentStatus): PaymentDto {
+        return mapper.toDto(paymentRepo.findFirstByOrderIdAndStatus(orderId, status)
+            ?: throw NotFoundException(messages.get("exceptions.not-found.payment-by-order", orderId)))
+    }
+
     @Cacheable(CacheNames.PAYMENTS, key = "'by-order-id:' + #orderId")
     override fun getPaymentByOrderId(orderId: UUID): PaymentDto {
-        return mapper.toDto(paymentRepo.findFirstByOrderIdAndStatus(orderId)
+        return mapper.toDto(paymentRepo.findFirstByOrderId(orderId)
             ?: throw NotFoundException(messages.get("exceptions.not-found.payment-by-order", orderId)))
     }
 

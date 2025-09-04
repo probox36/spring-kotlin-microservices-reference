@@ -39,7 +39,7 @@ class SuborderListener {
 
         when (event.type) {
             PREPARING -> {
-                if (order.status == OrderStatus.CREATED) {
+                if (order.status == OrderStatus.PAID) {
                     orderService.updateStatus(order.id!!, OrderStatus.PREPARING)
                 }
             }

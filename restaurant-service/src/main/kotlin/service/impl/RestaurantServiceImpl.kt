@@ -39,7 +39,7 @@ class RestaurantServiceImpl : RestaurantService {
     private lateinit var mapper: RestaurantMapper
 
     @Caching(
-        put = [CachePut(CacheNames.RESTAURANTS, "#restaurant.id")],
+        put = [CachePut(CacheNames.RESTAURANTS, key = "#result.id")],
         evict = [CacheEvict(CacheNames.RESTAURANTS_COLLECTION, allEntries = true)]
     )
     @Transactional
@@ -71,7 +71,7 @@ class RestaurantServiceImpl : RestaurantService {
     }
 
     @Caching(
-        put = [CachePut(CacheNames.RESTAURANTS, "#id")],
+        put = [CachePut(CacheNames.RESTAURANTS, key = "#id")],
         evict = [CacheEvict(CacheNames.RESTAURANTS_COLLECTION, allEntries = true)]
     )
     override fun updateRestaurant(id: UUID, dto: RestaurantDto): RestaurantDto {
@@ -84,7 +84,7 @@ class RestaurantServiceImpl : RestaurantService {
 
     @Caching(
         evict = [CacheEvict(CacheNames.RESTAURANTS_COLLECTION, allEntries = true),
-        CacheEvict(CacheNames.RESTAURANTS, "#id")]
+        CacheEvict(CacheNames.RESTAURANTS, key = "#id")]
     )
     override fun deleteRestaurant(id: UUID) {
         log.info { "Deleting restaurant $id" }
@@ -92,7 +92,7 @@ class RestaurantServiceImpl : RestaurantService {
     }
 
     @Caching(
-        put = [CachePut(CacheNames.RESTAURANTS, "#id")],
+        put = [CachePut(CacheNames.RESTAURANTS, key = "#id")],
         evict = [CacheEvict(CacheNames.RESTAURANTS_COLLECTION, allEntries = true)]
     )
     override fun updateName(id: UUID, name: String): RestaurantDto {
@@ -103,7 +103,7 @@ class RestaurantServiceImpl : RestaurantService {
     }
 
     @Caching(
-        put = [CachePut(CacheNames.RESTAURANTS, "#id")],
+        put = [CachePut(CacheNames.RESTAURANTS, key = "#id")],
         evict = [CacheEvict(CacheNames.RESTAURANTS_COLLECTION, allEntries = true)]
     )
     override fun updateAddress(id: UUID, address: String): RestaurantDto {
@@ -114,7 +114,7 @@ class RestaurantServiceImpl : RestaurantService {
     }
 
     @Caching(
-        put = [CachePut(CacheNames.RESTAURANTS, "#id")],
+        put = [CachePut(CacheNames.RESTAURANTS, key = "#id")],
         evict = [CacheEvict(CacheNames.RESTAURANTS_COLLECTION, allEntries = true)]
     )
     override fun updatePhone(id: UUID, phone: String): RestaurantDto {
@@ -125,7 +125,7 @@ class RestaurantServiceImpl : RestaurantService {
     }
 
     @Caching(
-        put = [CachePut(CacheNames.RESTAURANTS, "#id")],
+        put = [CachePut(CacheNames.RESTAURANTS, key = "#id")],
         evict = [CacheEvict(CacheNames.RESTAURANTS_COLLECTION, allEntries = true)]
     )
     override fun updateEmail(id: UUID, email: String): RestaurantDto {

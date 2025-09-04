@@ -46,12 +46,12 @@ class SuborderServiceImpl : SuborderService {
         return repo.findAll(pageable).map { mapper.toDto(it) }
     }
 
-    @Cacheable(CacheNames.SUBORDER_COLLECTION, "{#restaurantId, #pageable}")
+    @Cacheable(CacheNames.SUBORDER_COLLECTION, key = "{#restaurantId, #pageable}")
     override fun getSubordersByRestaurantIdAndStatus(restaurantId: UUID, status: SuborderStatus, pageable: Pageable): Page<SuborderDto> {
         return repo.findByRestaurantIdAndStatus(restaurantId, status, pageable).map { mapper.toDto(it) }
     }
 
-    @Cacheable(CacheNames.SUBORDER_COLLECTION, "{#restaurantId, #pageable}")
+    @Cacheable(CacheNames.SUBORDER_COLLECTION, key = "{#restaurantId, #pageable}")
     override fun getSubordersByRestaurantId(restaurantId: UUID, pageable: Pageable): Page<SuborderDto> {
         return repo.findByRestaurantId(restaurantId, pageable).map { mapper.toDto(it) }
     }
@@ -116,7 +116,7 @@ class SuborderServiceImpl : SuborderService {
     }
 
     @Caching(
-        put = [CachePut(CacheNames.SUBORDERS, "#id")],
+        put = [CachePut(CacheNames.SUBORDERS, key = "#id")],
         evict = [CacheEvict(CacheNames.SUBORDER_COLLECTION, allEntries = true)]
     )
     @Transactional

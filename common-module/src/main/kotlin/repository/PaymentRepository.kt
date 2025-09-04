@@ -16,6 +16,7 @@ interface PaymentRepository : JpaRepository<Payment, UUID>, PagingAndSortingRepo
         time: LocalDateTime? = LocalDateTime.now().minusMinutes(5)
     ): List<Payment>
 
-    fun findFirstByOrderIdAndStatus(id: UUID, status: PaymentStatus? = PaymentStatus.PENDING): Payment?
+    fun findFirstByOrderIdAndStatus(id: UUID, status: PaymentStatus): Payment?
+    fun findFirstByOrderId(id: UUID): Payment?
     fun findByOrderId(id: UUID): List<Payment>
 }

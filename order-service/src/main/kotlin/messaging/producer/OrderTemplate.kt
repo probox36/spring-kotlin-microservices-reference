@@ -1,11 +1,13 @@
 package com.buoyancy.order.messaging.producer
 
+import com.buoyancy.common.model.dto.OrderDto
 import com.buoyancy.common.model.dto.messaging.events.OrderEvent
 import com.buoyancy.common.model.enums.TopicNames
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Component
+import java.util.UUID
 
 @Component
 class OrderTemplate {

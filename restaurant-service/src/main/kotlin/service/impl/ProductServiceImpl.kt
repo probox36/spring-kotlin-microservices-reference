@@ -39,7 +39,7 @@ class ProductServiceImpl : ProductService {
     private lateinit var mapper: ProductMapper
 
     @Caching(
-        put = [CachePut(CacheNames.PRODUCTS, "#product.id")],
+        put = [CachePut(CacheNames.PRODUCTS, key = "#result.id")],
         evict = [CacheEvict(CacheNames.PRODUCT_COLLECTION, allEntries = true)]
     )
     @Transactional
@@ -55,7 +55,7 @@ class ProductServiceImpl : ProductService {
     }
 
     @Caching(
-        put = [CachePut(CacheNames.PRODUCTS, "#id")],
+        put = [CachePut(CacheNames.PRODUCTS, key = "#id")],
         evict = [CacheEvict(CacheNames.PRODUCT_COLLECTION, allEntries = true)]
     )
     override fun updateProduct(id: UUID, dto: ProductDto): ProductDto {
@@ -67,7 +67,7 @@ class ProductServiceImpl : ProductService {
     }
 
     @Caching(
-        evict = [CacheEvict(CacheNames.PRODUCTS, "#id"),
+        evict = [CacheEvict(CacheNames.PRODUCTS, key = "#id"),
             CacheEvict(CacheNames.PRODUCT_COLLECTION, allEntries = true)]
     )
     override fun deleteProduct(id: UUID) {
@@ -91,13 +91,13 @@ class ProductServiceImpl : ProductService {
         return repo.findAll(pageable).map { mapper.toDto(it) }
     }
 
-    @Cacheable(CacheNames.PRODUCT_COLLECTION, "{#restaurantId, #pageable}")
+    @Cacheable(CacheNames.PRODUCT_COLLECTION, key = "{#restaurantId, #pageable}")
     override fun getProductsByRestaurant(restaurantId: UUID, pageable: Pageable): Page<ProductDto> {
         return repo.findByRestaurantId(restaurantId, pageable).map { mapper.toDto(it) }
     }
 
     @Caching(
-        put = [CachePut(CacheNames.PRODUCTS, "#id")],
+        put = [CachePut(CacheNames.PRODUCTS, key = "#id")],
         evict = [CacheEvict(CacheNames.PRODUCT_COLLECTION, allEntries = true)]
     )
     override fun updateName(id: UUID, name: String) : ProductDto {
@@ -109,7 +109,7 @@ class ProductServiceImpl : ProductService {
     }
 
     @Caching(
-        put = [CachePut(CacheNames.PRODUCTS, "#id")],
+        put = [CachePut(CacheNames.PRODUCTS, key = "#id")],
         evict = [CacheEvict(CacheNames.PRODUCT_COLLECTION, allEntries = true)]
     )
     override fun updatePrice(id: UUID, price: Long): ProductDto {

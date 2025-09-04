@@ -44,7 +44,7 @@ class OrderServiceImpl : OrderService {
     private lateinit var mapper: OrderMapper
 
     @Transactional
-    @CachePut(CacheNames.ORDERS, "#result.id")
+    @CachePut(CacheNames.ORDERS, key = "#result.id")
     override fun createOrder(orderDto: OrderDto): OrderDto {
         if (orderDto.id != null && repo.existsById(orderDto.id!!)) {
             val conflictMessage = messages.get("exceptions.conflict.suborder", orderDto.id!!)
@@ -62,7 +62,7 @@ class OrderServiceImpl : OrderService {
         return mapper.toDto(saved)
     }
 
-    @CachePut(CacheNames.ORDERS, "#id")
+    @CachePut(CacheNames.ORDERS, key = "#id")
     @Transactional
     override fun updateStatus(id: UUID, newStatus: OrderStatus): OrderDto {
         val order = self.getOrderEntity(id)
@@ -84,12 +84,14 @@ class OrderServiceImpl : OrderService {
         return self.getOrder(id).status
     }
 
+    @CachePut(CacheNames.ORDERS, key = "#id")
     override fun cancelOrder(id: UUID): OrderDto {
         if (getStatus(id) == READY)
             throw BadRequestException(messages.get("exceptions.bad-request.order.cancel", id))
         return self.updateStatus(id, CANCELLED)
     }
 
+    @Transactional
     @Cacheable(CacheNames.ORDERS)
     override fun getOrder(id: UUID): OrderDto {
         return mapper.toDto(self.getOrderEntity(id))
@@ -101,7 +103,7 @@ class OrderServiceImpl : OrderService {
         }
     }
 
-    @CachePut(CacheNames.ORDERS, "#id")
+    @CachePut(CacheNames.ORDERS, key = "#id")
     @Transactional
     override fun updateOrder(id: UUID, update: OrderDto): OrderDto {
         val order = self.getOrderEntity(id)
@@ -127,4 +129,6 @@ class OrderServiceImpl : OrderService {
             throw BadRequestException(messages.get("exceptions.psql.integrity"))
         }
     }
+
+    // TODO: Добавить каскадное изменение для заказов/подзаказов
 }
