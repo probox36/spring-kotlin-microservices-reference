@@ -20,8 +20,6 @@ import org.springframework.cache.annotation.CachePut
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.cache.annotation.Caching
 import org.springframework.context.MessageSource
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.*
@@ -41,21 +39,6 @@ class SuborderServiceImpl : SuborderService {
     @Autowired
     private lateinit var mapper: SuborderMapper
 
-    @Cacheable(CacheNames.SUBORDER_COLLECTION)
-    override fun getSuborders(pageable: Pageable): Page<SuborderDto> {
-        return repo.findAll(pageable).map { mapper.toDto(it) }
-    }
-
-    @Cacheable(CacheNames.SUBORDER_COLLECTION, key = "{#restaurantId, #pageable}")
-    override fun getSubordersByRestaurantIdAndStatus(restaurantId: UUID, status: SuborderStatus, pageable: Pageable): Page<SuborderDto> {
-        return repo.findByRestaurantIdAndStatus(restaurantId, status, pageable).map { mapper.toDto(it) }
-    }
-
-    @Cacheable(CacheNames.SUBORDER_COLLECTION, key = "{#restaurantId, #pageable}")
-    override fun getSubordersByRestaurantId(restaurantId: UUID, pageable: Pageable): Page<SuborderDto> {
-        return repo.findByRestaurantId(restaurantId, pageable).map { mapper.toDto(it) }
-    }
-
     override fun markSuborderAsPreparing(id: UUID): SuborderDto {
         val status = getSuborder(id).status
         if (status in arrayOf(CREATED, POSTPONED)) {
@@ -65,11 +48,6 @@ class SuborderServiceImpl : SuborderService {
                 messages.get("exceptions.bad-request.order.status-change", status, PREPARING)
             )
         }
-    }
-
-    override fun markSuborderAsPreparing(suborder: SuborderDto): SuborderDto {
-        return suborder.id?.let { markSuborderAsPreparing(it) }
-            ?: throw BadRequestException(messages.get("exceptions.bad-request.suborder.null-id"))
     }
 
     override fun markSuborderAsReady(id: UUID): SuborderDto {
@@ -83,11 +61,6 @@ class SuborderServiceImpl : SuborderService {
         }
     }
 
-    override fun markSuborderAsReady(suborder: SuborderDto): SuborderDto {
-        return suborder.id?.let { markSuborderAsReady(it) }
-            ?: throw BadRequestException(messages.get("exceptions.bad-request.suborder.null-id"))
-    }
-
     override fun postponeSuborder(id: UUID): SuborderDto {
         val status = getSuborder(id).status
         if (status in arrayOf(CREATED, PREPARING)) {
@@ -97,11 +70,6 @@ class SuborderServiceImpl : SuborderService {
                 messages.get("exceptions.bad-request.order.status-change", status, POSTPONED)
             )
         }
-    }
-
-    override fun postponeSuborder(suborder: SuborderDto): SuborderDto {
-        return suborder.id?.let { postponeSuborder(it) }
-            ?: throw BadRequestException(messages.get("exceptions.bad-request.suborder.null-id"))
     }
 
     @Cacheable(CacheNames.SUBORDERS)
@@ -126,10 +94,5 @@ class SuborderServiceImpl : SuborderService {
         kafka.sendSuborderEvent(SuborderEvent(status, suborder.id!!))
         log.info { "Changed status of suborder ${suborder.id} to $status" }
         return mapper.toDto(repo.save(suborder))
-    }
-
-    private fun updateStatus(suborder: Suborder, status: SuborderStatus): SuborderDto {
-        if (suborder.id == null) throw NotFoundException(messages.get("exceptions.not-found.suborder"))
-        return self.updateStatus(suborder.id!!, status)
     }
 }

@@ -2,13 +2,8 @@ package model.mapper
 
 import com.buoyancy.common.model.dto.OrderDto
 import com.buoyancy.common.model.dto.ProductDto
-import com.buoyancy.common.model.dto.SuborderDto
 import com.buoyancy.common.model.dto.UserDto
-import com.buoyancy.common.model.entity.Order
-import com.buoyancy.common.model.entity.Product
-import com.buoyancy.common.model.entity.Restaurant
-import com.buoyancy.common.model.entity.Suborder
-import com.buoyancy.common.model.entity.User
+import com.buoyancy.common.model.entity.*
 import com.buoyancy.common.model.enums.CuisineType
 import com.buoyancy.common.model.enums.OrderStatus
 import com.buoyancy.common.model.enums.SuborderStatus
@@ -28,9 +23,7 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import java.time.LocalDateTime
 import java.util.*

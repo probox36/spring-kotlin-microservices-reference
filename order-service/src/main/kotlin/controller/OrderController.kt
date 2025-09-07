@@ -10,11 +10,14 @@ import com.buoyancy.order.service.OrderService
 import jakarta.validation.Valid
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.MessageSource
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import java.util.*
 
 @RestController
+@RequestMapping("/orders")
 class OrderController {
 
     @Autowired
@@ -45,6 +48,18 @@ class OrderController {
     @GetMapping("/{id}")
     fun getOrder(@PathVariable id: UUID): OrderDto {
         return service.getOrder(id)
+    }
+
+    @GetMapping()
+    fun getOrders(pageable: Pageable): Page<OrderDto> {
+        return service.getOrders(pageable)
+    }
+
+    @DeleteMapping("/{id}/delete")
+    fun deleteOrder(@PathVariable id: UUID): MessageDto {
+        service.deleteOrder(id)
+        val message = messages.get("rest.response.resource.deleted", id)
+        return MessageDto(200, message)
     }
 
     @PostMapping("/{id}/update")

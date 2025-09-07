@@ -16,8 +16,9 @@ spring:
             uri: lb://foodtech-order-service
             predicates:
               - Path=/api/orders/**
+              - Path=/api/suborders/**
             filters:
-              - StripPrefix=2
+              - StripPrefix=1
 
           - id: payment-service-route
             uri: lb://foodtech-payment-service

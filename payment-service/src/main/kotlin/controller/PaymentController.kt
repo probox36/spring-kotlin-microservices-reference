@@ -33,12 +33,12 @@ class PaymentController {
         return service.getPayment(id)
     }
 
-    @GetMapping("/orders/{orderId}")
+    @GetMapping("/by-order-id/{orderId}")
     fun getPaymentByOrderId(@PathVariable orderId: UUID): PaymentDto {
         return service.getPaymentByOrderId(orderId)
     }
 
-    @PostMapping("create")
+    @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
     fun createPayment(@Valid @RequestBody paymentDto: PaymentDto): ResourceDto<PaymentDto> {
         val created = service.createPayment(paymentDto)
@@ -57,6 +57,12 @@ class PaymentController {
         return MessageDto(200, messages.get("rest.response.payment.success"))
     }
 
+    @PatchMapping("/{id}/update")
+    fun updatePayment(@PathVariable id: UUID, @Valid @RequestBody paymentDto: PaymentDto): ResourceDto<PaymentDto> {
+        val message = messages.get("rest.response.payment.updated", id)
+        return ResourceDto(200, message, service.updatePayment(id, paymentDto))
+    }
+
     @PatchMapping("/{id}/status")
     fun updateStatus(@PathVariable id: UUID, @RequestParam status: PaymentStatus): ResourceDto<PaymentDto> {
         val updated = service.updateStatus(id, status)
@@ -64,9 +70,15 @@ class PaymentController {
         return ResourceDto(200, message, updated)
     }
 
-    @DeleteMapping("/{id}/delete")
+    @DeleteMapping("/{id}/cancel")
     fun cancel(@PathVariable id: UUID): MessageDto {
         service.cancel(id)
         return MessageDto(200, messages.get("rest.response.payment.cancelled", id))
+    }
+
+    @DeleteMapping("/{id}/delete")
+    fun delete(@PathVariable id: UUID): MessageDto {
+        service.delete(id)
+        return MessageDto(200, messages.get("rest.response.payment.deleted", id))
     }
 }

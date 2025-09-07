@@ -3,6 +3,7 @@ package com.buoyancy.common.model.enums
 class CacheNames {
     companion object {
         const val ORDERS = "orders"
+        const val ORDERS_COLLECTION = "ordersCollection"
         const val PAYMENTS = "payments"
         const val PAYMENT_COLLECTION = "paymentCollection"
         const val SUBORDERS = "suborders"

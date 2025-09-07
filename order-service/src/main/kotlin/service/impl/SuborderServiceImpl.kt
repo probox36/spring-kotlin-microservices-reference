@@ -18,10 +18,14 @@ import com.buoyancy.order.service.SuborderService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.persistence.EntityNotFoundException
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.CachePut
 import org.springframework.cache.annotation.Cacheable
+import org.springframework.cache.annotation.Caching
 import org.springframework.context.MessageSource
 import org.springframework.dao.DataIntegrityViolationException
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.transaction.support.TransactionSynchronization
@@ -47,7 +51,10 @@ class SuborderServiceImpl : SuborderService {
     private lateinit var orderService: OrderService
 
     @Transactional
-    @CachePut(CacheNames.SUBORDERS, key = "#result.id")
+    @Caching(
+        put = [CachePut(CacheNames.SUBORDERS, key = "#result.id")],
+        evict = [CacheEvict(CacheNames.SUBORDER_COLLECTION, allEntries = true)]
+    )
     override fun createSuborder(suborderDto: SuborderDto): SuborderDto {
         if (suborderDto.id != null && repo.existsById(suborderDto.id!!)) {
             throw ConflictException(messages.get("exceptions.conflict.suborder", suborderDto.id!!))
@@ -64,7 +71,25 @@ class SuborderServiceImpl : SuborderService {
         return mapper.toDto(saved)
     }
 
-    @CachePut(CacheNames.SUBORDERS, key = "#id")
+    @Cacheable(CacheNames.SUBORDER_COLLECTION, key = "{#restaurantId, #pageable}")
+    override fun getSubordersByRestaurantId(restaurantId: UUID, pageable: Pageable): Page<SuborderDto> {
+        return repo.findByRestaurantId(restaurantId, pageable).map { mapper.toDto(it) }
+    }
+
+    @Cacheable(CacheNames.SUBORDER_COLLECTION, key = "{#restaurantId, #pageable, #status}")
+    override fun getSubordersByRestaurantIdAndStatus(restaurantId: UUID, status: SuborderStatus, pageable: Pageable): Page<SuborderDto> {
+        return repo.findByRestaurantIdAndStatus(restaurantId, status, pageable).map { mapper.toDto(it) }
+    }
+
+    @Cacheable(CacheNames.SUBORDER_COLLECTION)
+    override fun getSuborders(pageable: Pageable): Page<SuborderDto> {
+        return repo.findAll(pageable).map { mapper.toDto(it) }
+    }
+
+    @Caching(
+        put = [CachePut(CacheNames.SUBORDERS, key = "#id")],
+        evict = [CacheEvict(CacheNames.SUBORDER_COLLECTION, allEntries = true)]
+    )
     @Transactional
     override fun updateStatus(id: UUID, status: SuborderStatus): SuborderDto {
         val suborder = self.getSuborderEntity(id)
@@ -85,6 +110,29 @@ class SuborderServiceImpl : SuborderService {
     override fun getSuborderEntity(id: UUID): Suborder {
         return repo.findById(id).orElseThrow {
             NotFoundException(messages.get("exceptions.not-found.suborder", id))
+        }
+    }
+
+    @Caching(
+        evict = [CacheEvict(CacheNames.SUBORDER_COLLECTION, allEntries = true),
+            CacheEvict(CacheNames.SUBORDERS, key = "#id")]
+    )
+    override fun deleteSuborder(id: UUID) {
+        log.info { "Deleting suborder $id" }
+        repo.deleteById(id)
+    }
+
+    @Caching(
+        put = [CachePut(CacheNames.ORDERS, key = "#id")],
+        evict = [CacheEvict(CacheNames.SUBORDER_COLLECTION, allEntries = true)]
+    )
+    @Transactional
+    override fun updateSuborder(id: UUID, update: SuborderDto): SuborderDto {
+        val order = self.getSuborderEntity(id)
+        val updated = mapper.toEntity(update).apply { this.id = id }
+        log.info { "Updating suborder ${order.id} to $order" }
+        return withHandling {
+            mapper.toDto(repo.save(updated))
         }
     }
 

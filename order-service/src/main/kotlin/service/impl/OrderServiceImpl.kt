@@ -17,10 +17,13 @@ import com.buoyancy.order.service.OrderService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.persistence.EntityNotFoundException
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.CachePut
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.context.MessageSource
 import org.springframework.dao.DataIntegrityViolationException
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.transaction.support.TransactionSynchronization
@@ -97,6 +100,18 @@ class OrderServiceImpl : OrderService {
         return mapper.toDto(self.getOrderEntity(id))
     }
 
+    @Transactional
+    @Cacheable(CacheNames.ORDERS_COLLECTION)
+    override fun getOrders(pageable: Pageable): Page<OrderDto> {
+        return repo.findAll(pageable).map { mapper.toDto(it) }
+    }
+
+    @CacheEvict(CacheNames.ORDERS, key = "#id")
+    override fun deleteOrder(id: UUID) {
+        log.info { "Deleting order $id" }
+        repo.deleteById(id)
+    }
+
     override fun getOrderEntity(id: UUID): Order {
         return repo.findById(id).orElseThrow {
             NotFoundException(messages.get("exceptions.not-found.order", id))
@@ -108,7 +123,7 @@ class OrderServiceImpl : OrderService {
     override fun updateOrder(id: UUID, update: OrderDto): OrderDto {
         val order = self.getOrderEntity(id)
         val updated = mapper.toEntity(update).apply { this.id = id }
-        log.info { "Updated order ${order.id} to $order" }
+        log.info { "Updating order ${order.id} to $order" }
         return withHandling {
             mapper.toDto(repo.save(updated))
         }

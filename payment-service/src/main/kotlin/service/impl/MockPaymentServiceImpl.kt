@@ -76,6 +76,10 @@ class MockPaymentServiceImpl: MockPaymentService {
         return self.payByPaymentId(getPaymentByOrderId(orderId).id!!, value)
     }
 
+    @Caching(
+        put = [CachePut(CacheNames.PAYMENTS, key = "#paymentId")],
+        evict = [CacheEvict(CacheNames.PAYMENT_COLLECTION, allEntries = true)]
+    )
     override fun cancel(paymentId: UUID): PaymentDto {
         val status = self.getPaymentEntity(paymentId).status
         if (status != PaymentStatus.PENDING) {
@@ -83,6 +87,16 @@ class MockPaymentServiceImpl: MockPaymentService {
             throw BadRequestException(message)
         }
         return self.updateStatus(paymentId, PaymentStatus.EXPIRED)
+    }
+
+    @Caching(
+        evict = [
+            CacheEvict(CacheNames.PAYMENTS, key = "#paymentId"),
+            CacheEvict(CacheNames.PAYMENT_COLLECTION, allEntries = true)]
+    )
+    override fun delete(paymentId: UUID) {
+        log.info { "Deleting payment $paymentId"}
+        paymentRepo.deleteById(paymentId)
     }
 
     @Caching(
@@ -166,6 +180,16 @@ class MockPaymentServiceImpl: MockPaymentService {
     override fun getPaymentByOrderId(orderId: UUID): PaymentDto {
         return mapper.toDto(paymentRepo.findFirstByOrderId(orderId)
             ?: throw NotFoundException(messages.get("exceptions.not-found.payment-by-order", orderId)))
+    }
+
+    @CachePut(CacheNames.PAYMENTS, key = "#id")
+    @Transactional
+    override fun updatePayment(id: UUID, update: PaymentDto): PaymentDto {
+        val updated = mapper.toEntity(update).apply { this.id = id }
+        log.info { "Updating order ${updated.id} to $updated" }
+        return withHandling {
+            mapper.toDto(paymentRepo.save(updated))
+        }
     }
 
     @Cacheable(CacheNames.PAYMENT_COLLECTION)

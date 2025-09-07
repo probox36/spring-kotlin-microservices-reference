@@ -59,25 +59,25 @@ class RestaurantController {
         return MessageDto(200, deletedMessage)
     }
 
-    @PostMapping("/{id}/updateName")
+    @PostMapping("/{id}/update-name")
     fun updateName(@PathVariable id: UUID, @RequestBody name: String): ResourceDto<RestaurantDto> {
         val entity = service.updateName(id, name)
         return ResourceDto(200, updatedMessage, entity)
     }
 
-    @PostMapping("/{id}/updateAddress")
+    @PostMapping("/{id}/update-address")
     fun updateAddress(@PathVariable id: UUID, @RequestBody address: String): ResourceDto<RestaurantDto> {
         val entity = service.updateAddress(id, address)
         return ResourceDto(200, updatedMessage, entity)
     }
 
-    @PostMapping("/{id}/updatePhone")
+    @PostMapping("/{id}/update-phone")
     fun updatePhone(@PathVariable id: UUID, @RequestBody phone: String): ResourceDto<RestaurantDto> {
         val entity = service.updatePhone(id, phone)
         return ResourceDto(200, updatedMessage, entity)
     }
 
-    @PostMapping("/{id}/updateEmail")
+    @PostMapping("/{id}/update-email")
     fun updateEmail(@PathVariable id: UUID, @RequestBody dto: EmailUpdateDto): ResourceDto<RestaurantDto> {
         val entity = service.updateEmail(id, dto.email)
         return ResourceDto(200, updatedMessage, entity)
