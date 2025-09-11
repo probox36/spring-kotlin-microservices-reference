@@ -13,6 +13,7 @@ import org.springframework.context.MessageSource
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import java.util.*
 
@@ -25,6 +26,7 @@ class OrderController {
     @Autowired
     private lateinit var messages : MessageSource
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT')")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/create")
     fun createOrder(@Valid @RequestBody orderDto: OrderDto): ResourceDto<OrderDto> {
@@ -33,28 +35,33 @@ class OrderController {
         return ResourceDto(201, message, created)
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT', 'RESTAURANT')")
     @GetMapping("/{id}/status")
     fun getOrderStatus(@PathVariable id: UUID): OrderStatus {
         val orderStatus = service.getStatus(id)
         return orderStatus
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT')")
     @PutMapping("/{id}/cancel")
     fun cancelOrder(@PathVariable id: UUID): MessageDto {
         service.cancelOrder(id)
         return MessageDto(200, messages.get("rest.response.orders.cancelled", id))
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT', 'RESTAURANT')")
     @GetMapping("/{id}")
     fun getOrder(@PathVariable id: UUID): OrderDto {
         return service.getOrder(id)
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT', 'RESTAURANT')")
     @GetMapping()
     fun getOrders(pageable: Pageable): Page<OrderDto> {
         return service.getOrders(pageable)
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT')")
     @DeleteMapping("/{id}/delete")
     fun deleteOrder(@PathVariable id: UUID): MessageDto {
         service.deleteOrder(id)
@@ -62,6 +69,7 @@ class OrderController {
         return MessageDto(200, message)
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT')")
     @PostMapping("/{id}/update")
     fun updateOrder(@Valid @RequestBody orderDto: OrderDto): ResourceDto<OrderDto> {
         val updated = orderDto.id?.let { service.updateOrder(it, orderDto) }

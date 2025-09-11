@@ -1,7 +1,6 @@
 package com.buoyancy.order.controller
 
 import com.buoyancy.common.exceptions.BadRequestException
-import com.buoyancy.common.model.dto.OrderDto
 import com.buoyancy.common.model.dto.SuborderDto
 import com.buoyancy.common.model.dto.rest.MessageDto
 import com.buoyancy.common.model.dto.rest.ResourceDto
@@ -14,16 +13,9 @@ import org.springframework.context.MessageSource
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.ResponseStatus
-import org.springframework.web.bind.annotation.RestController
-import java.util.UUID
+import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.web.bind.annotation.*
+import java.util.*
 
 @RestController
 @RequestMapping("/suborders")
@@ -34,20 +26,26 @@ class SuborderController {
     @Autowired
     private lateinit var messages : MessageSource
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT', 'RESTAURANT')")
     @GetMapping()
     fun getSuborders(pageable: Pageable): Page<SuborderDto> {
         return service.getSuborders(pageable)
     }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT', 'RESTAURANT')")
     @GetMapping("/by-restaurant/{restaurantId}")
     fun getSubordersByRestaurant(@PathVariable restaurantId: UUID, @RequestParam status: SuborderStatus?, pageable: Pageable): Page<SuborderDto> {
         return status?.let { service.getSubordersByRestaurantIdAndStatus(restaurantId, it, pageable) }
             ?: service.getSubordersByRestaurantId(restaurantId, pageable)
     }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT', 'RESTAURANT')")
     @GetMapping("/{id}")
     fun getSuborder(@PathVariable id: UUID): SuborderDto {
         return service.getSuborder(id)
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/create")
     fun createSuborder(@Valid @RequestBody suborderDto: SuborderDto): ResourceDto<SuborderDto> {
@@ -56,6 +54,7 @@ class SuborderController {
         return ResourceDto(201, message, created)
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}/delete")
     fun deleteSuborder(@PathVariable id: UUID): MessageDto {
         service.deleteSuborder(id)
@@ -63,6 +62,7 @@ class SuborderController {
         return MessageDto(200, message)
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{id}/update")
     fun updateSuborder(@Valid @RequestBody orderDto: SuborderDto): ResourceDto<SuborderDto> {
         val updated = orderDto.id?.let { service.updateSuborder(it, orderDto) }

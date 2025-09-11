@@ -5,16 +5,13 @@ dependencies {
         exclude(group = "org.flywaydb")
         exclude(group = "org.springframework.boot", "spring-boot-starter-data-jpa")
         exclude(group = "org.springframework.boot", "spring-boot-starter-data-redis")
+        exclude(group = "org.springframework.boot", module = "spring-boot-starter-security")
+        exclude(group = "org.springframework.boot", module = "spring-boot-starter-oauth2-resource-server")
+        exclude(group = "org.springframework.security", module = "spring-security-oauth2-jose")
     }
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-server")
-//    implementation("org.springframework.boot:spring-boot-starter-security")
-//    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("org.springframework.cloud:spring-cloud-starter-loadbalancer")
-//    testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
-//    testImplementation("org.springframework.boot:spring-boot-starter-test") {
-//        exclude(group = "org.mockito", module = "mockito-core")
-//    }
     testImplementation(kotlin("test"))
 }

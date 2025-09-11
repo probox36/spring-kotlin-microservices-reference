@@ -144,6 +144,4 @@ class OrderServiceImpl : OrderService {
             throw BadRequestException(messages.get("exceptions.psql.integrity"))
         }
     }
-
-    // TODO: Добавить каскадное изменение для заказов/подзаказов
 }

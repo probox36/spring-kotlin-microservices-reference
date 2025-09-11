@@ -3,6 +3,11 @@ spring:
     name: api-gateway
   config:
     import: classpath:application-common.yaml
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${keycloak.auth-server-url}realms/${keycloak.realm}/protocol/openid-connect/certs
   cloud:
     gateway:
       discovery:
@@ -33,6 +38,12 @@ spring:
               - Path=/api/restaurants/**
             filters:
               - StripPrefix=2
+
+keycloak:
+  auth-server-url: http://localhost:8090/
+  realm: foodtech
+  resource: foodtech-app
+  public-client: true
 
 ---
 # ^^^ Needed to override server.port property from common-module
