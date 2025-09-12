@@ -4,7 +4,7 @@ import com.buoyancy.common.model.dto.messaging.events.PaymentEvent
 import com.buoyancy.common.model.enums.GroupIds
 import com.buoyancy.common.model.enums.PaymentStatus
 import com.buoyancy.common.model.enums.TopicNames
-import com.buoyancy.common.utils.get
+import com.buoyancy.common.utils.find
 import com.buoyancy.notification.service.NotificationService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -34,13 +34,13 @@ class PaymentListener() {
             PaymentStatus.SUCCESS -> {
                 service.notifyUser(
                     event,
-                    messages.get("notifications.payment.success", orderId)
+                    messages.find("notifications.payment.success", orderId)
                 )
                 service.notifyRestaurants(orderId)
             }
             PaymentStatus.EXPIRED -> service.notifyUser(
                 event,
-                messages.get(
+                messages.find(
                     "notifications.payment.fail",
                     orderId, event.errorReason ?: "not stated"
                 )

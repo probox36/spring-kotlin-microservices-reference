@@ -1,7 +1,7 @@
 package com.buoyancy.common.exceptions
 
 import com.buoyancy.common.model.dto.rest.MessageDto
-import com.buoyancy.common.utils.get
+import com.buoyancy.common.utils.find
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.postgresql.util.PSQLException
 import org.springframework.beans.factory.annotation.Autowired
@@ -9,6 +9,7 @@ import org.springframework.context.MessageSource
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.http.HttpStatus.*
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.validation.FieldError
 import org.springframework.validation.ObjectError
 import org.springframework.web.bind.MethodArgumentNotValidException
@@ -30,7 +31,7 @@ class GlobalExceptionHandler {
         log.error { "Bad request exception thrown: ${ exception.message }" }
         return MessageDto(
             BAD_REQUEST.value(),
-            exception.message ?: messages.get("rest.exceptions.bad-request")
+            exception.message ?: messages.find("rest.exceptions.bad-request")
         )
     }
 
@@ -40,7 +41,7 @@ class GlobalExceptionHandler {
         log.error { "Conflict exception thrown: ${ exception.message }" }
         return MessageDto(
             CONFLICT.value(),
-            exception.message ?: messages.get("rest.exceptions.conflict")
+            exception.message ?: messages.find("rest.exceptions.conflict")
         )
     }
 
@@ -50,7 +51,7 @@ class GlobalExceptionHandler {
         log.error { "Internal error exception thrown: ${ exception.message }" }
         return MessageDto(
             INTERNAL_SERVER_ERROR.value(),
-            exception.message ?: messages.get("rest.exceptions.internal-error")
+            exception.message ?: messages.find("rest.exceptions.internal-error")
         )
     }
 
@@ -60,7 +61,7 @@ class GlobalExceptionHandler {
         log.error { "Not found exception thrown: ${ exception.message }" }
         return MessageDto(
             NOT_FOUND.value(),
-            exception.message ?: messages.get("rest.exceptions.not-found")
+            exception.message ?: messages.find("rest.exceptions.not-found")
         )
     }
 
@@ -70,7 +71,16 @@ class GlobalExceptionHandler {
         log.error { "Unauthorized exception thrown: ${ exception.message }" }
         return MessageDto(
             UNAUTHORIZED.value(),
-            exception.message ?: messages.get("rest.exceptions.unauthorized")
+            exception.message ?: messages.find("rest.exceptions.unauthorized")
+        )
+    }
+
+    @ResponseStatus(UNAUTHORIZED)
+    @ExceptionHandler(AccessDeniedException::class)
+    fun handleAccessDeniedException(exception: AccessDeniedException?): MessageDto {
+        val message = messages.find("rest.exceptions.access-denied")
+        return MessageDto(
+            UNAUTHORIZED.value(), message
         )
     }
 
@@ -81,12 +91,12 @@ class GlobalExceptionHandler {
         log.error { "Data integrity violation exception thrown: ${ rootCause?.message }" }
         val errorMessage = if (rootCause is PSQLException) {
             when (rootCause.sqlState) {
-                "23502" -> messages.get("exceptions.psql.not-null") // NOT NULL violation
-                "23503" -> messages.get("exceptions.psql.foreign-key") // FOREIGN KEY violation
-                "23505" -> messages.get("exceptions.psql.unique") // UNIQUE violation
-                else -> messages.get("exceptions.psql.unknown")
+                "23502" -> messages.find("exceptions.psql.not-null") // NOT NULL violation
+                "23503" -> messages.find("exceptions.psql.foreign-key") // FOREIGN KEY violation
+                "23505" -> messages.find("exceptions.psql.unique") // UNIQUE violation
+                else -> messages.find("exceptions.psql.unknown")
             }
-        } else { messages.get("exceptions.sql.unknown") }
+        } else { messages.find("exceptions.sql.unknown") }
         return MessageDto(BAD_REQUEST.value(), errorMessage)
     }
 

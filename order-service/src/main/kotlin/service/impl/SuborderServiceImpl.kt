@@ -11,7 +11,7 @@ import com.buoyancy.common.model.enums.SuborderStatus
 import com.buoyancy.common.model.enums.SuborderStatus.CREATED
 import com.buoyancy.common.model.mapper.SuborderMapper
 import com.buoyancy.common.repository.SuborderRepository
-import com.buoyancy.common.utils.get
+import com.buoyancy.common.utils.find
 import com.buoyancy.order.messaging.producer.SuborderTemplate
 import com.buoyancy.order.service.OrderService
 import com.buoyancy.order.service.SuborderService
@@ -57,7 +57,7 @@ class SuborderServiceImpl : SuborderService {
     )
     override fun createSuborder(suborderDto: SuborderDto): SuborderDto {
         if (suborderDto.id != null && repo.existsById(suborderDto.id!!)) {
-            throw ConflictException(messages.get("exceptions.conflict.suborder", suborderDto.id!!))
+            throw ConflictException(messages.find("exceptions.conflict.suborder", suborderDto.id!!))
         }
 
         val suborder = mapper.toEntity(suborderDto).apply { status = CREATED }
@@ -109,7 +109,7 @@ class SuborderServiceImpl : SuborderService {
 
     override fun getSuborderEntity(id: UUID): Suborder {
         return repo.findById(id).orElseThrow {
-            NotFoundException(messages.get("exceptions.not-found.suborder", id))
+            NotFoundException(messages.find("exceptions.not-found.suborder", id))
         }
     }
 
@@ -164,9 +164,9 @@ class SuborderServiceImpl : SuborderService {
         return try {
             block()
         } catch (_: EntityNotFoundException) {
-            throw NotFoundException(messages.get("exceptions.psql.foreign-key"))
+            throw NotFoundException(messages.find("exceptions.psql.foreign-key"))
         } catch (_: DataIntegrityViolationException) {
-            throw BadRequestException(messages.get("exceptions.psql.integrity"))
+            throw BadRequestException(messages.find("exceptions.psql.integrity"))
         }
     }
 }

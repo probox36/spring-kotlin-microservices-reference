@@ -8,7 +8,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.invoke
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.SecurityFilterChain
-import org.springframework.security.web.session.DisableEncodeUrlFilter
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 
 @Configuration
 @EnableWebSecurity
@@ -16,11 +16,12 @@ import org.springframework.security.web.session.DisableEncodeUrlFilter
 class SecurityConfig {
 
     @Bean
-    open fun filterChain(http: HttpSecurity): SecurityFilterChain {
+    fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
             csrf {
                 disable()
             }
+            addFilterAfter<UsernamePasswordAuthenticationFilter> ( SecurityContextLoggingFilter() )
             authorizeHttpRequests {
                 authorize(anyRequest, authenticated)
             }

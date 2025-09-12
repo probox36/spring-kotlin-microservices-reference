@@ -5,7 +5,7 @@ import com.buoyancy.common.model.dto.OrderDto
 import com.buoyancy.common.model.dto.rest.MessageDto
 import com.buoyancy.common.model.dto.rest.ResourceDto
 import com.buoyancy.common.model.enums.OrderStatus
-import com.buoyancy.common.utils.get
+import com.buoyancy.common.utils.find
 import com.buoyancy.order.service.OrderService
 import jakarta.validation.Valid
 import org.springframework.beans.factory.annotation.Autowired
@@ -31,7 +31,7 @@ class OrderController {
     @PostMapping("/create")
     fun createOrder(@Valid @RequestBody orderDto: OrderDto): ResourceDto<OrderDto> {
         val created = service.createOrder(orderDto)
-        val message = messages.get("rest.response.orders.created", created.id!!)
+        val message = messages.find("rest.response.orders.created", created.id!!)
         return ResourceDto(201, message, created)
     }
 
@@ -46,7 +46,7 @@ class OrderController {
     @PutMapping("/{id}/cancel")
     fun cancelOrder(@PathVariable id: UUID): MessageDto {
         service.cancelOrder(id)
-        return MessageDto(200, messages.get("rest.response.orders.cancelled", id))
+        return MessageDto(200, messages.find("rest.response.orders.cancelled", id))
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT', 'RESTAURANT')")
@@ -65,16 +65,16 @@ class OrderController {
     @DeleteMapping("/{id}/delete")
     fun deleteOrder(@PathVariable id: UUID): MessageDto {
         service.deleteOrder(id)
-        val message = messages.get("rest.response.resource.deleted", id)
+        val message = messages.find("rest.response.resource.deleted", id)
         return MessageDto(200, message)
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT')")
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{id}/update")
     fun updateOrder(@Valid @RequestBody orderDto: OrderDto): ResourceDto<OrderDto> {
         val updated = orderDto.id?.let { service.updateOrder(it, orderDto) }
-            ?: throw BadRequestException(messages.get("exceptions.bad-request.order.null-id"))
-        val message = messages.get("rest.response.orders.updated", orderDto.id!!)
+            ?: throw BadRequestException(messages.find("exceptions.bad-request.order.null-id"))
+        val message = messages.find("rest.response.orders.updated", orderDto.id!!)
         return ResourceDto(200, message, updated)
     }
 }

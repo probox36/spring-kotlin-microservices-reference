@@ -4,7 +4,7 @@ import com.buoyancy.common.model.dto.RestaurantDto
 import com.buoyancy.common.model.dto.rest.EmailUpdateDto
 import com.buoyancy.common.model.dto.rest.MessageDto
 import com.buoyancy.common.model.dto.rest.ResourceDto
-import com.buoyancy.common.utils.get
+import com.buoyancy.common.utils.find
 import com.buoyancy.restaurant.service.RestaurantService
 import jakarta.validation.Valid
 import org.springframework.beans.factory.annotation.Autowired
@@ -24,8 +24,8 @@ class RestaurantController {
     @Autowired
     private lateinit var messages : MessageSource
 
-    private val updatedMessage by lazy { messages.get("rest.response.resource.updated") }
-    private val createdMessage by lazy { messages.get("rest.response.resource.created") }
+    private val updatedMessage by lazy { messages.find("rest.response.resource.updated") }
+    private val createdMessage by lazy { messages.find("rest.response.resource.created") }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'RESTAURANT')")
     @PostMapping("create")
@@ -57,38 +57,38 @@ class RestaurantController {
         return ResourceDto(200, updatedMessage, updated)
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'RESTAURANT')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('RESTAURANT') and #id.toString() == authentication.principal.subject")
     @DeleteMapping("/{id}/delete")
     fun deleteRestaurant(@PathVariable id: UUID): MessageDto {
         service.deleteRestaurant(id)
-        val deletedMessage = messages.get("rest.response.resource.deleted", id)
+        val deletedMessage = messages.find("rest.response.resource.deleted", id)
         return MessageDto(200, deletedMessage)
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'RESTAURANT')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('RESTAURANT') and #id.toString() == authentication.principal.subject")
     @PostMapping("/{id}/update-name")
-    fun updateName(@PathVariable id: UUID, @RequestBody name: String): ResourceDto<RestaurantDto> {
+    fun updateName(@PathVariable id: UUID, @RequestParam name: String): ResourceDto<RestaurantDto> {
         val entity = service.updateName(id, name)
         return ResourceDto(200, updatedMessage, entity)
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'RESTAURANT')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('RESTAURANT') and #id.toString() == authentication.principal.subject")
     @PostMapping("/{id}/update-address")
-    fun updateAddress(@PathVariable id: UUID, @RequestBody address: String): ResourceDto<RestaurantDto> {
+    fun updateAddress(@PathVariable id: UUID, @RequestParam address: String): ResourceDto<RestaurantDto> {
         val entity = service.updateAddress(id, address)
         return ResourceDto(200, updatedMessage, entity)
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'RESTAURANT')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('RESTAURANT') and #id.toString() == authentication.principal.subject")
     @PostMapping("/{id}/update-phone")
-    fun updatePhone(@PathVariable id: UUID, @RequestBody phone: String): ResourceDto<RestaurantDto> {
+    fun updatePhone(@PathVariable id: UUID, @RequestParam phone: String): ResourceDto<RestaurantDto> {
         val entity = service.updatePhone(id, phone)
         return ResourceDto(200, updatedMessage, entity)
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'RESTAURANT')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('RESTAURANT') and #id.toString() == authentication.principal.subject")
     @PostMapping("/{id}/update-email")
-    fun updateEmail(@PathVariable id: UUID, @RequestBody dto: EmailUpdateDto): ResourceDto<RestaurantDto> {
+    fun updateEmail(@PathVariable id: UUID, @RequestParam dto: EmailUpdateDto): ResourceDto<RestaurantDto> {
         val entity = service.updateEmail(id, dto.email)
         return ResourceDto(200, updatedMessage, entity)
     }

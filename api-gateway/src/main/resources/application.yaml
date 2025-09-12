@@ -17,10 +17,16 @@ spring:
       mvc:
         routes:
 
-          - id: order-service-route
+          - id: order-service-orders-route
             uri: lb://foodtech-order-service
             predicates:
               - Path=/api/orders/**
+            filters:
+              - StripPrefix=1
+
+          - id: order-service-suborders-route
+            uri: lb://foodtech-order-service
+            predicates:
               - Path=/api/suborders/**
             filters:
               - StripPrefix=1

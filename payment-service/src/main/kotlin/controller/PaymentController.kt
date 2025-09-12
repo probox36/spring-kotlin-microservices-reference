@@ -4,7 +4,7 @@ import com.buoyancy.common.model.dto.PaymentDto
 import com.buoyancy.common.model.dto.rest.MessageDto
 import com.buoyancy.common.model.dto.rest.ResourceDto
 import com.buoyancy.common.model.enums.PaymentStatus
-import com.buoyancy.common.utils.get
+import com.buoyancy.common.utils.find
 import com.buoyancy.payment.service.impl.MockPaymentServiceImpl
 import jakarta.validation.Valid
 import org.springframework.beans.factory.annotation.Autowired
@@ -47,27 +47,27 @@ class PaymentController {
     @ResponseStatus(HttpStatus.CREATED)
     fun createPayment(@Valid @RequestBody paymentDto: PaymentDto): ResourceDto<PaymentDto> {
         val created = service.createPayment(paymentDto)
-        return ResourceDto(200, messages.get("rest.response.payment.created"), created)
+        return ResourceDto(200, messages.find("rest.response.payment.created"), created)
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT')")
     @PutMapping("/{paymentId}/pay-by-payment-id")
     fun payByPaymentId(@PathVariable paymentId: UUID, @RequestParam value: Long): MessageDto {
         service.payByPaymentId(paymentId, value)
-        return MessageDto(200, messages.get("rest.response.payment.success"))
+        return MessageDto(200, messages.find("rest.response.payment.success"))
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT', 'RESTAURANT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT')")
     @PutMapping("/{orderId}/pay")
     fun pay(@PathVariable orderId: UUID, @RequestParam value: Long): MessageDto {
         service.pay(orderId, value)
-        return MessageDto(200, messages.get("rest.response.payment.success"))
+        return MessageDto(200, messages.find("rest.response.payment.success"))
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}/update")
     fun updatePayment(@PathVariable id: UUID, @Valid @RequestBody paymentDto: PaymentDto): ResourceDto<PaymentDto> {
-        val message = messages.get("rest.response.payment.updated", id)
+        val message = messages.find("rest.response.payment.updated", id)
         return ResourceDto(200, message, service.updatePayment(id, paymentDto))
     }
 
@@ -75,7 +75,7 @@ class PaymentController {
     @PatchMapping("/{id}/status")
     fun updateStatus(@PathVariable id: UUID, @RequestParam status: PaymentStatus): ResourceDto<PaymentDto> {
         val updated = service.updateStatus(id, status)
-        val message = messages.get("rest.response.payment.status-updated", id, status)
+        val message = messages.find("rest.response.payment.status-updated", id, status)
         return ResourceDto(200, message, updated)
     }
 
@@ -83,13 +83,13 @@ class PaymentController {
     @DeleteMapping("/{id}/cancel")
     fun cancel(@PathVariable id: UUID): MessageDto {
         service.cancel(id)
-        return MessageDto(200, messages.get("rest.response.payment.cancelled", id))
+        return MessageDto(200, messages.find("rest.response.payment.cancelled", id))
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}/delete")
     fun delete(@PathVariable id: UUID): MessageDto {
         service.delete(id)
-        return MessageDto(200, messages.get("rest.response.payment.deleted", id))
+        return MessageDto(200, messages.find("rest.response.payment.deleted", id))
     }
 }

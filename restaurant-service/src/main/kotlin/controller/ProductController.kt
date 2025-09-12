@@ -3,8 +3,7 @@ package com.buoyancy.restaurant.controller
 import com.buoyancy.common.model.dto.ProductDto
 import com.buoyancy.common.model.dto.rest.MessageDto
 import com.buoyancy.common.model.dto.rest.ResourceDto
-import com.buoyancy.common.model.mapper.ProductMapper
-import com.buoyancy.common.utils.get
+import com.buoyancy.common.utils.find
 import com.buoyancy.restaurant.service.ProductService
 import jakarta.validation.Valid
 import org.springframework.beans.factory.annotation.Autowired
@@ -25,10 +24,10 @@ class ProductController {
     @Autowired
     private lateinit var messages : MessageSource
 
-    private val updatedMessage by lazy { messages.get("rest.response.resource.updated") }
-    private val createdMessage by lazy { messages.get("rest.response.resource.created") }
+    private val updatedMessage by lazy { messages.find("rest.response.resource.updated") }
+    private val createdMessage by lazy { messages.find("rest.response.resource.created") }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'RESTAURANT')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('RESTAURANT') and #productDto.restaurantId.toString() == authentication.principal.subject")
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
     fun createProduct(@Valid @RequestBody productDto: ProductDto) : ResourceDto<ProductDto> {
@@ -36,7 +35,7 @@ class ProductController {
         return ResourceDto(201, createdMessage, created)
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('RESTAURANT') and #productDto.restaurantId.toString() == authentication.principal.subject")
     @PostMapping("/{id}/update")
     fun updateProduct(@PathVariable id: UUID, @Valid @RequestBody productDto: ProductDto) : ResourceDto<ProductDto> {
         val updated = service.updateProduct(id, productDto)
@@ -47,7 +46,7 @@ class ProductController {
     @DeleteMapping("/{id}/delete")
     fun deleteProduct(@PathVariable id: UUID) : MessageDto {
         service.deleteProduct(id)
-        val message = messages.get("rest.response.resource.deleted", id)
+        val message = messages.find("rest.response.resource.deleted", id)
         return MessageDto(200, message)
     }
 
