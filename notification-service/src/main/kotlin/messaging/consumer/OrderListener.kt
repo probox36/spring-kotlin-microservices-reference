@@ -4,7 +4,7 @@ import com.buoyancy.common.model.enums.GroupIds
 import com.buoyancy.common.model.enums.OrderStatus
 import com.buoyancy.common.model.enums.TopicNames
 import com.buoyancy.notification.service.MailService
-import com.buoyancy.common.utils.get
+import com.buoyancy.common.utils.find
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.beans.factory.annotation.Autowired
@@ -31,17 +31,17 @@ class OrderListener() {
         fun send(message: String) {
             email.send(
                 to = event.userEmail,
-                subject = messages.get("email.subjects.order"),
+                subject = messages.find("email.subjects.order"),
                 body = message
             )
         }
 
         when (event.type) {
-            OrderStatus.CREATED -> send(messages.get("notifications.order.created", id))
-            OrderStatus.READY -> send(messages.get("notifications.order.ready", id))
-            OrderStatus.PREPARING -> send(messages.get("notifications.order.preparing", id))
-            OrderStatus.POSTPONED -> send(messages.get("notifications.order.postponed", id))
-            OrderStatus.CANCELLED -> send(messages.get("notifications.order.cancelled", id))
+            OrderStatus.CREATED -> send(messages.find("notifications.order.created", id))
+            OrderStatus.READY -> send(messages.find("notifications.order.ready", id))
+            OrderStatus.PREPARING -> send(messages.find("notifications.order.preparing", id))
+            OrderStatus.POSTPONED -> send(messages.find("notifications.order.postponed", id))
+            OrderStatus.CANCELLED -> send(messages.find("notifications.order.cancelled", id))
             else -> {}
         }
     }

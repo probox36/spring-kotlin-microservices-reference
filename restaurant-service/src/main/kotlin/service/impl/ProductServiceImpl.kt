@@ -8,7 +8,7 @@ import com.buoyancy.common.model.entity.Product
 import com.buoyancy.common.model.enums.CacheNames
 import com.buoyancy.common.model.mapper.ProductMapper
 import com.buoyancy.common.repository.ProductRepository
-import com.buoyancy.common.utils.get
+import com.buoyancy.common.utils.find
 import com.buoyancy.restaurant.service.ProductService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.persistence.EntityNotFoundException
@@ -45,7 +45,7 @@ class ProductServiceImpl : ProductService {
     @Transactional
     override fun createProduct(dto: ProductDto): ProductDto {
         if (dto.id != null && repo.existsById(dto.id!!)) {
-            val conflictMessage = messages.get("exceptions.conflict.product", dto.id!!)
+            val conflictMessage = messages.find("exceptions.conflict.product", dto.id!!)
             throw ConflictException(conflictMessage)
         }
         val product = mapper.toEntity(dto)
@@ -82,7 +82,7 @@ class ProductServiceImpl : ProductService {
 
     override fun getProductEntity(id: UUID): Product {
         return repo.findById(id).orElseThrow {
-            NotFoundException(messages.get("exceptions.not-found.product", id))
+            NotFoundException(messages.find("exceptions.not-found.product", id))
         }
     }
 
@@ -124,9 +124,9 @@ class ProductServiceImpl : ProductService {
         return try {
             block()
         } catch (_: EntityNotFoundException) {
-            throw NotFoundException(messages.get("exceptions.psql.foreign-key"))
+            throw NotFoundException(messages.find("exceptions.psql.foreign-key"))
         } catch (_: DataIntegrityViolationException) {
-            throw BadRequestException(messages.get("exceptions.psql.integrity"))
+            throw BadRequestException(messages.find("exceptions.psql.integrity"))
         }
     }
 }

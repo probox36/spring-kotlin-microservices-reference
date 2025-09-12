@@ -8,7 +8,7 @@ import com.buoyancy.common.model.entity.Restaurant
 import com.buoyancy.common.model.enums.CacheNames
 import com.buoyancy.common.model.mapper.RestaurantMapper
 import com.buoyancy.common.repository.RestaurantRepository
-import com.buoyancy.common.utils.get
+import com.buoyancy.common.utils.find
 import com.buoyancy.restaurant.service.RestaurantService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.persistence.EntityNotFoundException
@@ -45,7 +45,7 @@ class RestaurantServiceImpl : RestaurantService {
     @Transactional
     override fun createRestaurant(dto: RestaurantDto): RestaurantDto {
         if (dto.id != null && repo.existsById(dto.id!!)) {
-            val conflictMessage = messages.get("exceptions.conflict.restaurant", dto.id!!)
+            val conflictMessage = messages.find("exceptions.conflict.restaurant", dto.id!!)
             throw ConflictException(conflictMessage)
         }
         val restaurant = mapper.toEntity(dto)
@@ -66,7 +66,7 @@ class RestaurantServiceImpl : RestaurantService {
 
     override fun getRestaurantEntity(id: UUID): Restaurant {
         return repo.findById(id).orElseThrow {
-            NotFoundException(messages.get("exceptions.not-found.restaurant", id))
+            NotFoundException(messages.find("exceptions.not-found.restaurant", id))
         }
     }
 
@@ -138,9 +138,9 @@ class RestaurantServiceImpl : RestaurantService {
         return try {
             block()
         } catch (_: EntityNotFoundException) {
-            throw NotFoundException(messages.get("exceptions.psql.foreign-key"))
+            throw NotFoundException(messages.find("exceptions.psql.foreign-key"))
         } catch (_: DataIntegrityViolationException) {
-            throw BadRequestException(messages.get("exceptions.psql.integrity"))
+            throw BadRequestException(messages.find("exceptions.psql.integrity"))
         }
     }
 

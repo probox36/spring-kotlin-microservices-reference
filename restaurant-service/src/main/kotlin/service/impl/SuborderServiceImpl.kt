@@ -10,7 +10,7 @@ import com.buoyancy.common.model.enums.SuborderStatus
 import com.buoyancy.common.model.enums.SuborderStatus.*
 import com.buoyancy.common.model.mapper.SuborderMapper
 import com.buoyancy.common.repository.SuborderRepository
-import com.buoyancy.common.utils.get
+import com.buoyancy.common.utils.find
 import com.buoyancy.restaurant.messaging.producer.SuborderTemplate
 import com.buoyancy.restaurant.service.SuborderService
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -45,7 +45,7 @@ class SuborderServiceImpl : SuborderService {
             return updateStatus(id, PREPARING)
         } else {
             throw BadRequestException(
-                messages.get("exceptions.bad-request.order.status-change", status, PREPARING)
+                messages.find("exceptions.bad-request.order.status-change", status, PREPARING)
             )
         }
     }
@@ -56,7 +56,7 @@ class SuborderServiceImpl : SuborderService {
             return updateStatus(id, READY)
         } else {
             throw BadRequestException(
-                messages.get("exceptions.bad-request.order.status-change", status, READY)
+                messages.find("exceptions.bad-request.order.status-change", status, READY)
             )
         }
     }
@@ -67,7 +67,7 @@ class SuborderServiceImpl : SuborderService {
             return updateStatus(id, POSTPONED)
         } else {
             throw BadRequestException(
-                messages.get("exceptions.bad-request.order.status-change", status, POSTPONED)
+                messages.find("exceptions.bad-request.order.status-change", status, POSTPONED)
             )
         }
     }
@@ -79,7 +79,7 @@ class SuborderServiceImpl : SuborderService {
 
     override fun getSuborderEntity(id: UUID): Suborder {
         return repo.findById(id).orElseThrow {
-            NotFoundException(messages.get("exceptions.not-found.suborder", id))
+            NotFoundException(messages.find("exceptions.not-found.suborder", id))
         }
     }
 

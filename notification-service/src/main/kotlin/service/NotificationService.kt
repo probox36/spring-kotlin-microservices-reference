@@ -4,7 +4,7 @@ import com.buoyancy.common.model.entity.Product
 import com.buoyancy.common.model.enums.CacheNames
 import com.buoyancy.common.model.interfaces.OrderDetails
 import com.buoyancy.common.repository.SuborderRepository
-import com.buoyancy.common.utils.get
+import com.buoyancy.common.utils.find
 import jakarta.transaction.Transactional
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cache.annotation.Cacheable
@@ -30,12 +30,12 @@ class NotificationService {
     fun notifyRestaurants(orderId: UUID) {
         val suborders = getSubordersByOrderId(orderId)
         suborders.forEach {
-            val body = messages.get("notifications.restaurant.suborder.available",
+            val body = messages.find("notifications.restaurant.suborder.available",
                 orderId, it.items.size, getItemListString(it.items), it.items.sumOf { it.price })
 
             email.send(
                 to = it.restaurant.email,
-                subject = messages.get("email.subjects.suborder"),
+                subject = messages.find("email.subjects.suborder"),
                 body = body
             )
         }
@@ -44,7 +44,7 @@ class NotificationService {
     fun notifyUser(event: OrderDetails, message: String) {
         email.send(
             to = event.userEmail,
-            subject = messages.get("email.subjects.payment"),
+            subject = messages.find("email.subjects.payment"),
             body = message
         )
     }
