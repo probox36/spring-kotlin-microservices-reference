@@ -6,3 +6,10 @@ spring:
   kafka:
     consumer:
       group-id: order-group
+
+---
+# ^^^ Needed to override properties from application-common
+
+management:
+  server:
+    port: 9001

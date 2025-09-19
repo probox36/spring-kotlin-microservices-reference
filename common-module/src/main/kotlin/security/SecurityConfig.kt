@@ -23,6 +23,7 @@ class SecurityConfig {
             }
             addFilterAfter<UsernamePasswordAuthenticationFilter> ( SecurityContextLoggingFilter() )
             authorizeHttpRequests {
+                authorize("/actuator/**", permitAll)
                 authorize(anyRequest, authenticated)
             }
             oauth2ResourceServer {

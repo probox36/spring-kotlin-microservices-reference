@@ -1,23 +1,41 @@
 logging:
   level:
     org:
-      springframework: WARN
+      #  EnvVar
+      springframework: ${LOGGING_LEVEL:WARN}
 
 server:
   port: 0
 
 eureka:
+  #  EnvVar Ov
+  host: ${DISCOVERY_HOST:localhost}
+  #  EnvVar Ov
+  port: ${DISCOVERY_PORT:8761}
   client:
     serviceUrl:
-      defaultZone: http://${spring.security.user.name}:${spring.security.user.password}@localhost:8761/eureka/
+      defaultZone: http://${spring.security.user.name}:${spring.security.user.password}@${eureka.host}:${eureka.port}/eureka/
   instance:
     preferIpAddress: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: env, configprops
+  endpoint:
+    env:
+      show-values: always
+    configprops:
+      show-values: always
 
 spring:
   security:
     user:
-      name: user
-      password: password
+      #  EnvVar Se
+      name: ${SECURITY_USER_NAME:user}
+      #  EnvVar Se
+      password: ${SECURITY_PASSWORD:password}
 
   web:
     locale: en_EN
@@ -27,10 +45,12 @@ spring:
     allow-circular-references: true
 
   kafka:
-    bootstrap-server: localhost:9092
-
+    #  EnvVar Ov
+    bootstrap-servers:
+      - ${KAFKA_URI}
+    admin:
+      fail-fast: true
     consumer:
-      bootstrap-servers: ${spring.kafka.bootstrap-server}
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       properties:
@@ -43,7 +63,6 @@ spring:
               delegate:
                 class: org.springframework.kafka.support.serializer.JsonDeserializer
     producer:
-      bootstrap-servers: ${spring.kafka.bootstrap-server}
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       # Automatically adds type information to message headers
@@ -51,9 +70,10 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: probox36@gmail.com
-    #    TODO: Убрать
-    password:
+    #  EnvVar Se
+    username: ${MAIL_USERNAME}
+    #  EnvVar Se
+    password: ${MAIL_PASSWORD}
     properties:
       mail:
         smtp:
@@ -62,13 +82,15 @@ spring:
             enable: true
 
   datasource:
-    host: localhost:5432
-    database-name: foodtech
+    #  EnvVar Ov
+    host: ${DB_HOST:localhost:5432}
+    #  EnvVar
+    database-name: ${DB_NAME:foodtech}
     base-url: postgresql://${spring.datasource.host}/${spring.datasource.database-name}
     driver-class-name: org.postgresql.Driver
     username: postgres
-    #   TODO: Убрать
-    password:
+    #  EnvVar Se
+    password: ${DB_PASSWORD}
     url: jdbc:${spring.datasource.base-url}
     show-sql: true
 
@@ -80,8 +102,10 @@ spring:
 
   data:
     redis:
-      host: localhost
-      port: 6379
+      #  EnvVar Ov
+      host: ${REDIS_HOST:localhost}
+      #  EnvVar Ov
+      port: ${REDIS_PORT:6379}
   cache:
     type: redis
     redis:

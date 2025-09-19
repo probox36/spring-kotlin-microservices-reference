@@ -8,7 +8,8 @@ spring:
 # ^^^ Needed to override server.port property from common-module
 
 server:
-  port: 8761
+  #  EnvVar
+  port: ${DISCOVERY_PORT:8761}
 
 eureka:
   client:
@@ -16,3 +17,7 @@ eureka:
     fetch-registry: false
   server:
     wait-time-in-ms-when-sync-empty: 0
+
+management:
+  server:
+    port: 8762

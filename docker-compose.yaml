@@ -1,0 +1,88 @@
+version: '3.8'
+
+x-common-env: &common-env
+  environment:
+    - LOGGING_LEVEL:DEBUG
+    - KAFKA_URI=host.docker.internal:9092
+    - DISCOVERY_HOST=foodtech-discovery-server
+    - DISCOVERY_PORT=8761
+    - SECURITY_USER_NAME=user
+    - SECURITY_PASSWORD=password
+    - GATEWAY_PORT=8085
+    - KEYCLOAK_URL=foodtech_keycloak
+    - KEYCLOAK_PORT=8090
+    - DB_HOST=host.docker.internal:5432
+    #    TODO: Убрать
+    - DB_PASSWORD=
+    - REDIS_HOST=my-redis
+    - REDIS_PORT=6379
+    - MAIL_USERNAME=probox36@gmail.com
+#    TODO: Убрать
+    - MAIL_PASSWORD=
+
+x-common-depends-on: &common-depends-on
+  depends_on:
+    - discovery-server
+    - api-gateway
+
+x-common-networks: &common-networks
+  networks:
+    - foodtech
+
+services:
+  discovery-server:
+    container_name: foodtech-discovery-server
+    build:
+      context: .
+      dockerfile: discovery.dockerfile
+    ports:
+      - "8762:8762"
+    <<: [*common-networks, *common-env]
+
+  api-gateway:
+    container_name: foodtech-api-gateway
+    build:
+      context: .
+      dockerfile: gateway.dockerfile
+    ports:
+      - "8085:8085"
+      - "8086:8086"
+    <<: [*common-networks, *common-env]
+    depends_on:
+      - discovery-server
+
+  order-service:
+    container_name: foodtech-order-service
+    build:
+      context: .
+      dockerfile: order.dockerfile
+    ports:
+      - "9001:9001"
+    <<: [*common-networks, *common-env, *common-depends-on]
+
+  notification-service:
+    container_name: foodtech-notification-service
+    build:
+      context: .
+      dockerfile: notification.dockerfile
+    ports:
+      - "9000:9000"
+    <<: [*common-networks, *common-env, *common-depends-on]
+
+  payment-service:
+    container_name: foodtech-payment-service
+    build:
+      context: .
+      dockerfile: payment.dockerfile
+    ports:
+      - "9002:9002"
+    <<: [*common-networks, *common-env, *common-depends-on]
+
+  restaurant-service:
+    container_name: foodtech-restaurant-service
+    build:
+      context: .
+      dockerfile: restaurant.dockerfile
+    ports:
+      - "9003:9003"
+    <<: [*common-networks, *common-env, *common-depends-on]

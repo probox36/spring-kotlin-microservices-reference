@@ -11,7 +11,7 @@ plugins {
 
 allprojects {
     group = "com.buoyancy"
-    version = "0.0.1-SNAPSHOT"
+    version = "0.0.1"
 
     repositories {
         mavenCentral()
@@ -42,6 +42,24 @@ subprojects {
             applyMavenExclusions(false) // turns off maven exclusions processing for spring dependency management plugin
             // which dramatically speeds up the build process (and gets rid of slow detachedConfiguration tasks)
         }
+    }
+
+    tasks.register<Copy>("copyMessages") {
+        if (name !in arrayOf("common-module", "discovery-server", "api-gateway")) {
+            from(project(":common-module").file("src/main/resources/messages.properties"))
+            into("${layout.buildDirectory.get()}/resources/main")
+        }
+    }
+
+    tasks.register<Copy>("copyMigrations") {
+        if (name !in arrayOf("common-module", "discovery-server", "api-gateway", "notification-service")) {
+            from(project(":common-module").file("src/main/resources/migration"))
+            into("${layout.buildDirectory.get()}/resources/main/migration")
+        }
+    }
+
+    tasks.named("processResources") {
+        dependsOn("copyMigrations", "copyMessages")
     }
 
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {

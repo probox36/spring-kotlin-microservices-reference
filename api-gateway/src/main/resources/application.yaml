@@ -46,7 +46,8 @@ spring:
               - StripPrefix=2
 
 keycloak:
-  auth-server-url: http://localhost:8090/
+#  EnvVar Ov
+  auth-server-url: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8090}
   realm: foodtech
   resource: foodtech-app
   public-client: true
@@ -55,4 +56,8 @@ keycloak:
 # ^^^ Needed to override server.port property from common-module
 
 server:
-  port: 8085
+  port: ${GATEWAY_PORT:8085}
+
+management:
+  server:
+    port: 8086
