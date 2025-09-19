@@ -12,12 +12,13 @@ x-common-env: &common-env
     - KEYCLOAK_URL=foodtech_keycloak
     - KEYCLOAK_PORT=8090
     - DB_HOST=host.docker.internal:5432
-    #    TODO: Убрать
+    # password for your postgresql instance
     - DB_PASSWORD=
     - REDIS_HOST=my-redis
     - REDIS_PORT=6379
-    - MAIL_USERNAME=probox36@gmail.com
-#    TODO: Убрать
+    # username for your smtp server
+    - MAIL_USERNAME=
+    # password for smtp server
     - MAIL_PASSWORD=
 
 x-common-depends-on: &common-depends-on

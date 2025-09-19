@@ -8,9 +8,9 @@ server:
   port: 0
 
 eureka:
-  #  EnvVar Ov
+  #  EnvVar Override
   host: ${DISCOVERY_HOST:localhost}
-  #  EnvVar Ov
+  #  EnvVar Override
   port: ${DISCOVERY_PORT:8761}
   client:
     serviceUrl:
@@ -32,20 +32,21 @@ management:
 spring:
   security:
     user:
-      #  EnvVar Se
+      #  EnvVar Secret
       name: ${SECURITY_USER_NAME:user}
-      #  EnvVar Se
+      #  EnvVar Secret
       password: ${SECURITY_PASSWORD:password}
 
   web:
     locale: en_EN
     locale-resolver: fixed
 
+  # Enabled this to perform self injections
   main:
     allow-circular-references: true
 
   kafka:
-    #  EnvVar Ov
+    #  EnvVar Override
     bootstrap-servers:
       - ${KAFKA_URI}
     admin:
@@ -65,14 +66,15 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-      # Automatically adds type information to message headers
+      # Automatically adds type information to message headers, which is crucial for deserialization
 
   mail:
+    # Your smtp host
     host: smtp.gmail.com
     port: 587
-    #  EnvVar Se
+    #  EnvVar Secret
     username: ${MAIL_USERNAME}
-    #  EnvVar Se
+    #  EnvVar Secret
     password: ${MAIL_PASSWORD}
     properties:
       mail:
@@ -82,14 +84,14 @@ spring:
             enable: true
 
   datasource:
-    #  EnvVar Ov
+    #  EnvVar Override
     host: ${DB_HOST:localhost:5432}
     #  EnvVar
     database-name: ${DB_NAME:foodtech}
     base-url: postgresql://${spring.datasource.host}/${spring.datasource.database-name}
     driver-class-name: org.postgresql.Driver
     username: postgres
-    #  EnvVar Se
+    #  EnvVar Secret
     password: ${DB_PASSWORD}
     url: jdbc:${spring.datasource.base-url}
     show-sql: true
@@ -102,9 +104,9 @@ spring:
 
   data:
     redis:
-      #  EnvVar Ov
+      #  EnvVar Override
       host: ${REDIS_HOST:localhost}
-      #  EnvVar Ov
+      #  EnvVar Override
       port: ${REDIS_PORT:6379}
   cache:
     type: redis

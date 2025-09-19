@@ -39,7 +39,8 @@ subprojects {
     configure<DependencyManagementExtension> {
         imports {
             mavenBom("org.springframework.cloud:spring-cloud-dependencies:${property("springCloudVersion")}")
-            applyMavenExclusions(false) // turns off maven exclusions processing for spring dependency management plugin
+            applyMavenExclusions(false)
+            // turns off maven exclusions processing for spring dependency management plugin
             // which dramatically speeds up the build process (and gets rid of slow detachedConfiguration tasks)
         }
     }
@@ -67,10 +68,6 @@ subprojects {
             freeCompilerArgs = listOf("-Xjsr305=strict")
         }
     }
-
-//    tasks.matching { it.name.contains("kapt", ignoreCase = true) }.configureEach {
-//        enabled = false
-//    }
 
     val implementation by configurations
 

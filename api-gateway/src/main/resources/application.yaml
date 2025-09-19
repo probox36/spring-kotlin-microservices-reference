@@ -21,6 +21,8 @@ spring:
             uri: lb://foodtech-order-service
             predicates:
               - Path=/api/orders/**
+              # I figured out you can't add more than one path to this list.
+              # So I created a separate route for suborders
             filters:
               - StripPrefix=1
 
@@ -46,7 +48,7 @@ spring:
               - StripPrefix=2
 
 keycloak:
-#  EnvVar Ov
+#  EnvVar Override
   auth-server-url: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8090}
   realm: foodtech
   resource: foodtech-app
